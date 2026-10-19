@@ -3,7 +3,7 @@
 **An EarthBound / Mother 2 PC port, written in C++20.**
 
 Phase Distorter brings EarthBound (US, English) and Mother 2 (Japanese) to a
-native desktop application for Linux and Windows. It includes keyboard and
+native desktop application for Linux, Windows, and MacOS. It includes keyboard and
 controller input, audio, persistent saves, a Settings window, and
 widescreen presentation with offscreen actor preloading.
 
