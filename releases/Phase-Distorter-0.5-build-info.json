@@ -1,0 +1,791 @@
+{
+  "archives": {
+    "Phase-Distorter-0.5-launchers-multiarch.zip": {
+      "architecture": "arm64+x86_64",
+      "bytes": 37592063,
+      "files": 39,
+      "platform": "linux+macos+windows",
+      "sha256": "7be9d1e32c0de5f504082ea12774775377befceac0fbb4d022388ee52151fc7d",
+      "verified": true
+    },
+    "Phase-Distorter-0.5-linux-x86_64.zip": {
+      "architecture": "x86_64",
+      "bytes": 9922899,
+      "files": 19,
+      "platform": "linux",
+      "sha256": "9acf147c1aa18c3a8a03c4141a2c6094256f505c692f2947ebbd346fb4a40622",
+      "verified": true
+    },
+    "Phase-Distorter-0.5-macos-universal.zip": {
+      "architecture": "arm64+x86_64",
+      "bytes": 13357284,
+      "files": 23,
+      "platform": "macos",
+      "sha256": "026ca448734627c314cfa9621af4b3451d586f3dc181a6357543ccd3cbbcf499",
+      "verified": true
+    },
+    "Phase-Distorter-0.5-windows-x86_64.zip": {
+      "architecture": "x86_64",
+      "bytes": 14353099,
+      "files": 14,
+      "platform": "windows",
+      "sha256": "195d8b2fa4a05753d5330fef4d9030939074763ff3bedc41c5dcc2d9181b28ad",
+      "verified": true
+    }
+  },
+  "git_head_before_release_records": "9351f0a6ee29ea24c227002cf8d6050921982c6f",
+  "limits": [
+    "Physical macOS OpenGL, pixel and generated-audio checks do not establish subjective display quality, VRR timing or speaker playback acceptance",
+    "US/JP startup runs and source fixtures do not prove a complete playthrough or complete native-engine parity",
+    "Higher-rate pacing remains sensitive to game update cost and host load"
+  ],
+  "linux_build": {
+    "abi": {
+      "launchers/linux/bin/eb_cpp": {
+        "maximum_glibc": "2.36",
+        "needed": [
+          "libSDL2-2.0.so.0",
+          "libGL.so.1",
+          "libm.so.6",
+          "libc.so.6",
+          "ld-linux-x86-64.so.2"
+        ],
+        "sha256": "c8fe827a9ab01a829e9ce8e00a43138e84970c2b36eec423b79d95f1cadf3922"
+      },
+      "launchers/linux/lib/libSDL2-2.0.so.0": {
+        "maximum_glibc": "2.34",
+        "needed": [
+          "libm.so.6",
+          "libc.so.6"
+        ],
+        "sha256": "70fc72937d7bc09f115c90d7665a37e03674bd5aa85d8370a10c0215b580b841"
+      }
+    },
+    "compiler": "g++ (Debian 12.2.0-14+deb12u1) 12.2.0",
+    "cxx_runtime": "Private static libstdc++ and libgcc",
+    "environment": "Debian 12 rootfs in bubblewrap"
+  },
+  "macos_build": {
+    "SDL2": "2.32.10; bundled private universal dylib",
+    "application_sources_unchanged_since_build": true,
+    "architecture": "arm64+x86_64",
+    "build_and_package_succeeded": true,
+    "graphics_oracle_note": "Fractional fixtures isolate renderer-dependent nearest sampling and exact polygon-edge coverage while retaining strict interior/color/mask checks. CRT RGB stripe selection is stabilized away from modulo branch thresholds.",
+    "minimum_os": "11.0",
+    "native_verification_jobs": [
+      {
+        "conclusion": "success",
+        "name": "universal",
+        "url": "https://github.com/TheRunaway5/Phase-Distorter/actions/runs/39311764197/job/118262885012"
+      },
+      {
+        "conclusion": "success",
+        "name": "other_architecture",
+        "url": "https://github.com/TheRunaway5/Phase-Distorter/actions/runs/39311764197/job/118267778651"
+      }
+    ],
+    "renderer": "Native OpenGL 2.1",
+    "signing": "Ad-hoc signed; no Developer ID signature or notarization",
+    "source_commit": "d01e4fc4e8fc57e7705bb6b0736c8243203d89ef",
+    "workflow": "https://github.com/TheRunaway5/Phase-Distorter/actions/runs/39311764197"
+  },
+  "prepared": "2026-10-19",
+  "project": "Phase Distorter",
+  "publisher": "TheRunaway5",
+  "schema": 1,
+  "source_inputs": {
+    "count": 3047,
+    "record": "Phase-Distorter-0.5-source-inputs.json",
+    "sha256": "79a9a8084e01b0ccda51d855a38c8047d82427d0846e4f43dc31c29c79a1b8d9"
+  },
+  "verification": {
+    "crt_before_after": [
+      {
+        "game": "earthbound",
+        "gl_sha256": "5f99e432c2673da8b79a07bf3f45ac0f7245a9ff40ebb1d9e1538ec582ef03bc",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "stage": "before",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "earthbound",
+        "gl_sha256": "5f99e432c2673da8b79a07bf3f45ac0f7245a9ff40ebb1d9e1538ec582ef03bc",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "stage": "after",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "mother2",
+        "gl_sha256": "1188fb28f9e79993c489ec4c26e3e493fa8f687c27c616af01e677421cfac360",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "stage": "before",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "mother2",
+        "gl_sha256": "1188fb28f9e79993c489ec4c26e3e493fa8f687c27c616af01e677421cfac360",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "stage": "after",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "earthbound",
+        "gl_sha256": "5f99e432c2673da8b79a07bf3f45ac0f7245a9ff40ebb1d9e1538ec582ef03bc",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "stage": "before",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "earthbound",
+        "gl_sha256": "5f99e432c2673da8b79a07bf3f45ac0f7245a9ff40ebb1d9e1538ec582ef03bc",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "stage": "after",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "mother2",
+        "gl_sha256": "1188fb28f9e79993c489ec4c26e3e493fa8f687c27c616af01e677421cfac360",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "stage": "before",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      },
+      {
+        "game": "mother2",
+        "gl_sha256": "1188fb28f9e79993c489ec4c26e3e493fa8f687c27c616af01e677421cfac360",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "stage": "after",
+        "wav_sha256": "ee1da4959e8f7ba8fc72500cc91996b73388a1f926e1703a79483bacdc2aa31d"
+      }
+    ],
+    "extracted_package_runs": [
+      {
+        "exit": 0,
+        "game": "earthbound",
+        "matches_verified_pixels_and_audio": true,
+        "platform": "linux"
+      },
+      {
+        "exit": 0,
+        "game": "mother2",
+        "matches_verified_pixels_and_audio": true,
+        "platform": "linux"
+      },
+      {
+        "exit": 0,
+        "game": "earthbound",
+        "matches_verified_pixels_and_audio": true,
+        "platform": "windows"
+      },
+      {
+        "exit": 0,
+        "game": "mother2",
+        "matches_verified_pixels_and_audio": true,
+        "platform": "windows"
+      }
+    ],
+    "graphics_regressions_retested_after_oracle_fix": {
+      "linux": 2,
+      "windows_wine": 2
+    },
+    "linux_focused_tests": 8,
+    "packaging_regressions": 8,
+    "physical_macos": {
+      "architecture": "arm64",
+      "archive_sha256": "026ca448734627c314cfa9621af4b3451d586f3dc181a6357543ccd3cbbcf499",
+      "gui_runs": [
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "earthbound",
+          "gl_sha256": "aaba7d387369ec5cc55d60e77c728f0c26c0998772534646fbeed641daffbbe9",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "earthbound",
+          "gl_sha256": "aaba7d387369ec5cc55d60e77c728f0c26c0998772534646fbeed641daffbbe9",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "mother2",
+          "gl_sha256": "5936dd775b6b6fc2decfc5b5c5969275b43ce37e106a7b746726ad943fcb5838",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "mother2",
+          "gl_sha256": "5936dd775b6b6fc2decfc5b5c5969275b43ce37e106a7b746726ad943fcb5838",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        }
+      ],
+      "hardware": "Apple M2 Pro MacBook Pro 16-inch",
+      "os": "27.2",
+      "renderer": "Apple M2 Pro; native OpenGL",
+      "startup_runs": [
+        {
+          "aspect": "16:10",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "16:9",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-air-13",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-air-15",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-14",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "earthbound",
+          "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+          "state": [
+            "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+            "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "16:10",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "16:9",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-air-13",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-air-15",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-14",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        },
+        {
+          "aspect": "macbook-pro-16",
+          "exit": 0,
+          "game": "mother2",
+          "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+          "state": [
+            "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+            "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+            "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+          ],
+          "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+        }
+      ],
+      "success": true,
+      "tests": [
+        {
+          "exit": 0,
+          "name": "desktop_support_tests",
+          "seconds": 0.341
+        },
+        {
+          "exit": 0,
+          "name": "frame_pacer_tests",
+          "seconds": 0.188
+        },
+        {
+          "exit": 0,
+          "name": "presentation_scheduler_tests",
+          "seconds": 0.245
+        },
+        {
+          "exit": 0,
+          "name": "presentation_pipeline_tests",
+          "seconds": 1.103
+        },
+        {
+          "exit": 0,
+          "name": "frame_interpolator_tests",
+          "seconds": 1.378
+        },
+        {
+          "exit": 0,
+          "name": "video_tests",
+          "seconds": 0.724
+        },
+        {
+          "exit": 0,
+          "name": "debug_panel_tests",
+          "seconds": 0.819
+        },
+        {
+          "exit": 0,
+          "name": "direct_scene_video_tests",
+          "seconds": 1.848
+        }
+      ]
+    },
+    "previous_archives_preserved": true,
+    "repeated_archives_byte_identical": true,
+    "startup_runs": [
+      {
+        "aspect": "16:10",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:9",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-13",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-15",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-14",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-16",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:10",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:9",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-13",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-15",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-14",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-16",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "linux",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:10",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:9",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-13",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-15",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-14",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-16",
+        "game": "earthbound",
+        "native_sha256": "5a9408dd4a924a022b1e5622b67e4ae15ef4b5300d2c5f93698e624f9f49a5c4",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780355 instructions=1780293 native_batches=0 spc_instructions=517904 audio_frames=63894",
+          "PC=c08762 A=0000 X=001f Y=0000 S=1fed D=1ed0 DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:10",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "16:9",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-13",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-air-15",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-14",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      },
+      {
+        "aspect": "macbook-pro-16",
+        "game": "mother2",
+        "native_sha256": "f947df38ef99273b040a4ed04c3bdf873087af68947a83205705835591279b35",
+        "platform": "windows",
+        "state": [
+          "frames=120 steps=1780579 instructions=1780517 native_batches=0 spc_instructions=517908 audio_frames=63894",
+          "PC=c08758 A=0000 X=001f Y=0000 S=1fed D=1ece DB=7e P=26 E=0",
+          "SPC PC=057c A=0b X=61 Y=00 SP=cf P=03"
+        ],
+        "wav_sha256": "2e73fc5590efc9a4b85a737c90b32141c63677a057ef2203bff374abb9de439c"
+      }
+    ],
+    "story_preset_checks": 3618,
+    "windows_focused_tests": [
+      {
+        "exit": 0,
+        "seconds": 1.37,
+        "test": "desktop_support_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 0.02,
+        "test": "frame_pacer_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 0.06,
+        "test": "presentation_scheduler_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 1.52,
+        "test": "presentation_pipeline_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 1.17,
+        "test": "frame_interpolator_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 0.77,
+        "test": "video_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 0.67,
+        "test": "debug_panel_tests"
+      },
+      {
+        "exit": 0,
+        "seconds": 5.98,
+        "test": "direct_scene_video_tests"
+      }
+    ]
+  },
+  "version": "0.5",
+  "windows_build": {
+    "compiler": "x86_64-w64-mingw32-g++ (GCC) 16.2.0",
+    "runtime_checks": "Wine; native Windows hardware not tested"
+  }
+}
