@@ -187,6 +187,7 @@ void verify_sixteen_ten() {
         SDL_GL_GetDrawableSize(window, &drawable_width, &drawable_height);
         if (drawable_width != screen_width || drawable_height != screen_height)
             throw std::runtime_error("16:10 test requires an unscaled 1280x800 drawable");
+        std::cout << "16:10 renderer: " << glGetString(GL_RENDERER) << '\n';
         eb::FramePresenter presenter;
         auto scene = std::make_shared<eb::DirectSceneFrame>();
         scene->width = scene->atlas_width = source_width;
@@ -234,7 +235,8 @@ void verify_sixteen_ten() {
                         const unsigned actual = capture.rgb[at] << 16 | capture.rgb[at + 1] << 8 | capture.rgb[at + 2];
                         if (actual != expected && actual != boundary_expected)
                             throw std::runtime_error("16:10 pixel mismatch at " + std::to_string(x) + "," +
-                                std::to_string(y) + " direct=" + std::to_string(direct) + " inset=" + std::to_string(inset));
+                                std::to_string(y) + " direct=" + std::to_string(direct) + " inset=" + std::to_string(inset) +
+                                " expected=" + std::to_string(expected) + " actual=" + std::to_string(actual));
                     }
             }
         }

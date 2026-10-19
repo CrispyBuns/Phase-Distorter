@@ -18,6 +18,10 @@ on:
         description: Optional alternate runner for checking the existing artifact
         type: string
         default: ''
+      rebuild_video_tests:
+        description: Recompile only the small video test against the existing SDL runtime
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: read
@@ -52,4 +56,6 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ inputs.verify_artifact_run || github.run_id }}
       - name: Test the same application on the other CPU architecture
+        env:
+          EB_MACOS_REBUILD_VIDEO_TESTS: ${{ inputs.rebuild_video_tests && '1' || '0' }}
         run: bash cpp/tools/test-macos-release.sh
