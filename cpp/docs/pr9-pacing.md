@@ -135,3 +135,12 @@ preference. Separate 120-frame US and JP headless launcher checks also produce
 identical native captures and WAV output on Linux and Windows/Wine. These
 bounded checks do not establish physical Windows/VRR behavior, full-game parity
 or a consistent FPS improvement under varying host load.
+
+The published Linux launcher comes from the Debian 12 compatibility build,
+`build/linux-glibc236/cpp/eb_cpp`, using the environment described in
+[`linux-compat.Dockerfile`](../tools/linux-compat.Dockerfile). Its maximum required
+glibc version is 2.36, and C++/GCC support is statically linked. The newer host
+development build must not replace that portable launcher when publishing.
+The same eight focused suites also pass in Debian 12; the compatible launcher
+retains the matching US/JP native pixels and WAV output from the Windows/Wine
+smoke checks.
