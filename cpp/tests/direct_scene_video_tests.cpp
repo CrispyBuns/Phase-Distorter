@@ -9,11 +9,36 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 namespace {
 void require(bool ok, const char *message) {
     if (!ok)
         throw std::runtime_error(message);
+}
+bool coverage_tie(const eb::DirectScenePicture& picture, const std::vector<std::uint32_t>& expected,
+                  unsigned scale, std::size_t at, unsigned actual) {
+    if ((expected[at] & 0xffffff) && actual) return false;
+    const int width = picture.artwork->width * scale, height = 224 * scale;
+    const int x = int(at % width), y = int(at / width);
+    const float px = x + .5f, py = y + .5f;
+    for (const auto& quad : picture.artwork->quads) {
+        const auto offset = quad.motion < picture.offsets.size() ? picture.offsets[quad.motion] : eb::DirectScenePicture::Offset{};
+        const float left = (quad.x + offset.x) * scale, right = left + quad.width * scale;
+        const float top = (quad.y + offset.y) * scale, bottom = top + quad.height * scale;
+        if (px < left || px > right || py < top || py > bottom ||
+            (px != left && px != right && py != top && py != bottom)) continue;
+        // GL 2.1 section 3.6.1 leaves the inclusion side at an exact polygon
+        // edge implementation-dependent. Permit only a coverage change to an
+        // immediate reference neighbor, never arbitrary colors or interior
+        // differences. The independent scissor checks below remain exact.
+        for (const auto delta : {std::pair{-1, 0}, {1, 0}, {0, -1}, {0, 1}}) {
+            const int nx = x + delta.first, ny = y + delta.second;
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height &&
+                (expected[ny * width + nx] & 0xffffff) == actual) return true;
+        }
+    }
+    return false;
 }
 auto scene(unsigned frame, float x) {
     auto s = std::make_shared<eb::DirectSceneFrame>();
@@ -110,6 +135,17 @@ int main() {
         eb::FramePresenter present;
         present.prepare_scene_effects();
         present.prepare_crt();
+        auto tie_scene = scene(1, 20.5f);
+        tie_scene->quads.erase(tie_scene->quads.begin());
+        const eb::DirectScenePicture tie_picture{tie_scene, {}};
+        const auto tie_reference = eb::rasterize_direct_scene(tie_picture, 5);
+        constexpr auto tie_left = 150 * 1280 + 102, tie_right = 150 * 1280 + 182;
+        require(coverage_tie(tie_picture, tie_reference, 5, tie_left, 0) &&
+                    coverage_tie(tie_picture, tie_reference, 5, tie_right, 0xe03050),
+                "Exact polygon edge coverage variants were rejected");
+        require(!coverage_tie(tie_picture, tie_reference, 5, tie_left + 1, 0) &&
+                    !coverage_tie(tie_picture, tie_reference, 5, tie_right, 0x123456),
+                "Polygon edge oracle accepted interior or unrelated color errors");
         // Exercise host resources -> native actor ownership -> GL directly.
         // This path constructs no compatibility machine or graphics memory.
         native_sprite_test::Fixture native_content;
@@ -177,7 +213,7 @@ int main() {
                 unsigned visible = 0;
                 for (std::size_t i = 0; i < expected.size(); ++i) {
                     const unsigned rgb = (actual.rgb[i * 3] << 16) | (actual.rgb[i * 3 + 1] << 8) | actual.rgb[i * 3 + 2];
-                    if (rgb != (expected[i] & 0xffffff))
+                    if (rgb != (expected[i] & 0xffffff) && !coverage_tie(picture, expected, 5, i, rgb))
                         throw std::runtime_error("Fractional clip differs between GL and software: side=" +
                             std::to_string(right) + " phase=" + std::to_string(phase) + " x=" +
                             std::to_string(i % 1280) + " y=" + std::to_string(i / 1280) +

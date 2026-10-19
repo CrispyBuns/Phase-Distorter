@@ -19,3 +19,9 @@ PY
 clang++ -std=c++20 -O2 -DSDL_MAIN_HANDLED -Icpp/include -I"$work" -I"$work/SDL2-2.32.10/include" \
     cpp/tests/video_tests.cpp cpp/src/frame_presenter.cpp cpp/src/crt_filter.cpp cpp/src/scene_effects_renderer.cpp \
     "$app/Contents/Frameworks/libSDL2-2.0.0.dylib" -framework OpenGL -o "$output"
+clang++ -std=c++20 -O2 -DSDL_MAIN_HANDLED -Icpp/include -Icpp/external/imgui -I"$work" -I"$work/SDL2-2.32.10/include" \
+    cpp/tests/direct_scene_video_tests.cpp cpp/src/frame_presenter.cpp cpp/src/crt_filter.cpp cpp/src/scene_effects_renderer.cpp \
+    cpp/src/direct_scene.cpp cpp/src/native/sprite_resources.cpp cpp/src/native/sprite_actors.cpp cpp/src/debug_panel.cpp \
+    cpp/external/imgui/imgui.cpp cpp/external/imgui/imgui_draw.cpp cpp/external/imgui/imgui_tables.cpp \
+    cpp/external/imgui/imgui_widgets.cpp cpp/external/imgui/backends/imgui_impl_sdl2.cpp cpp/external/imgui/backends/imgui_impl_opengl2.cpp \
+    "$app/Contents/Frameworks/libSDL2-2.0.0.dylib" -framework OpenGL -o "$(dirname "$output")/direct_scene_video_tests"

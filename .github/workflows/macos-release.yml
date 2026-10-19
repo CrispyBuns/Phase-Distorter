@@ -19,7 +19,7 @@ on:
         type: string
         default: ''
       rebuild_video_tests:
-        description: Recompile only the small video test against the existing SDL runtime
+        description: Recompile the focused graphics tests against the existing SDL runtime
         type: boolean
         default: false
 permissions:

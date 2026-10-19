@@ -195,8 +195,14 @@ void verify_sixteen_ten() {
         scene->atlas.resize(source_width * 224);
         for (int y = 0; y < 224; ++y)
             for (int x = 0; x < source_width; ++x)
-                scene->atlas[y * source_width + x] = 0xff000001 |
-                    ((x * 13 + y * 7) & 255) << 16 | y << 8 | ((x ^ y) & 254);
+                // Fractional scaling checks viewport coverage and orientation.
+                // Constant quadrants keep their transitions away from texel
+                // ties: fixed-function interpolation precision varies by GL
+                // implementation. Integer-scale tests independently compare
+                // every distinct source texel, including this 358-wide canvas.
+                scene->atlas[y * source_width + x] = y < 112
+                    ? (x < source_width / 2 ? 0xffd83019 : 0xff21b84a)
+                    : (x < source_width / 2 ? 0xff315ac7 : 0xffe0b635);
         scene->quads = {{0, 0, source_width, 224, 0, 0, 0, 0, false}};
         // Canvas rounding must not introduce letterboxing. Check both render
         // paths at fractional output scale, including a windowed menu inset.
@@ -267,6 +273,9 @@ int main() {
         verify(2, 17, 0);
         verify(2, 0, 13);
         verify(1, 0, 0, 398);
+        verify(1, 0, 0, 344);
+        verify(1, 0, 0, 346);
+        verify(2, 0, 0, 358);
         verify(2, 13, 0, 524);
         verify(1, 0, 15, 1024);
         verify(2, 0, 0, 256, 25);
