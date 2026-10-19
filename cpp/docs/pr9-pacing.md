@@ -83,7 +83,7 @@ their existing policies. The bounded guard can still be exceeded by unforeseen
 rendering cost, driver blocking or host load. Source frames that arrive too late
 still hold at an endpoint; this change does not invent motion beyond source data.
 
-## Linux frontend checks
+## Prototype frontend checks
 
 The six focused CTest suites pass, including the 81-case scheduler matrix.
 The changed desktop translation units compile successfully. For a bounded
@@ -113,3 +113,25 @@ under an isolated Wine prefix, including the same 81 scheduler combinations.
 These verify portable duration arithmetic and scheduling decisions, not native
 Windows timer, audio-device, driver or display behavior. No Windows application
 package was built for this proposal.
+
+## Integrated launcher checks
+
+The integrated feature defaults off and is enabled through **F1 > Debug >
+Experimental frame pacing**. Its saved preference and live on/off behavior are
+covered by the desktop-support and pipeline tests. The SDL/ImGui test navigates
+to the real Debug checkbox, clicks it on and off, verifies that closing the
+panel retains it, and exercises availability with native-session machine cheats
+disabled.
+
+The normal CMake application builds and `refresh_launchers` targets succeed for
+Linux and MinGW Windows. Both canonical launcher executables are refreshed.
+Eight focused Linux CTest suites and five Windows/Wine suites pass, including
+the UI test, 81 guarded scheduler cases and the unguarded v0.4 scheduling fixture.
+
+Using the refreshed Linux launcher, 360-frame US and JP startup runs with the
+guard off/on retain identical CPU/SPC state, instruction and DSP sample counts,
+WAV bytes and native framebuffer captures; each run retains its chosen saved
+preference. Separate 120-frame US and JP headless launcher checks also produce
+identical native captures and WAV output on Linux and Windows/Wine. These
+bounded checks do not establish physical Windows/VRR behavior, full-game parity
+or a consistent FPS improvement under varying host load.
