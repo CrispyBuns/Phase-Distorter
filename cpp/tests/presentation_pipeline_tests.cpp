@@ -1,6 +1,7 @@
 #include "eb/presentation_pipeline.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -131,6 +132,35 @@ void independent_rates() {
                 "Selected presentation rate was not respected");
         require(pipeline.catch_up_frames() == 0, "Ordinary high-rate simulation generated false catch-up work");
     }
+}
+
+void experimental_pacing_toggle() {
+    Canvas canvas;
+    eb::DisplaySettings settings;
+    settings.frame_limit = 300;
+    require(!settings.experimental_frame_pacing, "Experimental pacing must require an opt-in");
+    Pipeline pipeline(Time{}, settings, eb::FramePacer::frame_rate, 300, true);
+    pipeline.completed_frame(canvas.view(1));
+    pipeline.simulation_finished(canvas.view(1), 1, Time{} + 2ms);
+    pipeline.presented(Time{} + 3ms, 1ms);
+    const auto tick = Time{} + eb::FramePacer::period();
+    const auto near = tick - 500us;
+    const auto picture = copy(pipeline.picture(near));
+    require(pipeline.presentation_due(near) && pipeline.wake_time(near) == near,
+            "Disabled experimental pacing still excluded a presentation slot");
+    settings.experimental_frame_pacing = true;
+    require(!pipeline.configure(settings, eb::FramePacer::frame_rate, 300, near),
+            "Enabling a presentation experiment requested an audio-rate change");
+    require(!pipeline.presentation_due(near) && pipeline.wake_time(near) == tick,
+            "Enabled experimental pacing did not apply its learned presentation budget");
+    require(copy(pipeline.picture(near)) == picture && pipeline.presented_frames() == 1,
+            "Enabling experimental pacing discarded picture history or presented a frame");
+    settings.experimental_frame_pacing = false;
+    pipeline.configure(settings, eb::FramePacer::frame_rate, 300, near + 100us);
+    require(pipeline.presentation_due(near + 100us) && pipeline.wake_time(near + 100us) == near + 100us,
+            "Disabling experimental pacing retained a deferred draw");
+    require(!pipeline.simulation_due(tick - 1ns) && pipeline.simulation_due(tick),
+            "Toggling experimental pacing changed the simulation deadline");
 }
 
 void callbacks_and_picture_lifetime() {
@@ -336,6 +366,55 @@ void direct_scene_boundary() {
             "A black phase of an active dimming sequence re-enabled unfiltered direct artwork");
 }
 
+// Exercise the producer/presentation seam, including promotion to new scene
+// endpoints. Checking the slope of one blend misses jumps and endpoint holds.
+void motion_keeps_native_timeline() {
+    const auto period = eb::FramePacer::period();
+    for (const auto costs : {std::array{8ms, 2ms}, std::array{2ms, 8ms}, std::array{8ms, 8ms}}) {
+        for (const float direction : {-1.f, 1.f}) {
+            Canvas canvas;
+            eb::DisplaySettings settings;
+            settings.frame_limit = 300;
+            Pipeline pipeline(Time{}, settings, eb::FramePacer::frame_rate, 300, true);
+            const auto publish = [&](unsigned frame) {
+                auto scene = std::make_shared<eb::DirectSceneFrame>();
+                scene->frame = frame;
+                scene->scene_identity = 1;
+                scene->width = canvas.width;
+                scene->motions = {{1, direction * frame, 0}};
+                auto view = canvas.view(frame);
+                view.scene = std::move(scene);
+                pipeline.completed_frame(view);
+                return view;
+            };
+            publish(0);
+            double last_position{};
+            Time last_sample{};
+            bool sampled = false;
+            for (unsigned frame = 1; frame <= 80; ++frame) {
+                const auto deadline = Time{} + period * (frame - 1);
+                require(pipeline.simulation_due(deadline), "Motion test lost its native simulation deadline");
+                const auto arrival = deadline + costs[(frame - 1) % costs.size()];
+                pipeline.simulation_finished(publish(frame), 1, arrival);
+                for (const auto now : {arrival, arrival + 1ms, arrival + 3ms, deadline + period - 1ms}) {
+                    const auto picture = pipeline.picture(now);
+                    require(picture.scene && picture.scene->offsets.size() == 1,
+                            "Continuous moving scene lost its presentation history");
+                    const double x = picture.scene->artwork->motions[0].x + picture.scene->offsets[0].x;
+                    if (sampled) {
+                        const double expected_motion = direction * double((now - last_sample).count()) / period.count();
+                        require(std::abs((x - last_position) - expected_motion) < 0.00002,
+                                "Variable update cost introduced a scene-motion jump or hold");
+                    }
+                    last_position = x;
+                    last_sample = now;
+                    sampled = true;
+                }
+            }
+        }
+    }
+}
+
 void filter_toggles_and_partial_failures() {
     Canvas canvas;
     eb::DisplaySettings settings;
@@ -445,11 +524,13 @@ int main() {
         sustained_lateness();
         native_and_headless();
         independent_rates();
+        experimental_pacing_toggle();
         callbacks_and_picture_lifetime();
         changes_and_discontinuities();
         audio_reopen_deadline();
         interpolation_setting_boundary();
         direct_scene_boundary();
+        motion_keeps_native_timeline();
         filter_toggles_and_partial_failures();
         restore_discards_future();
         automatic_filter_cadence();

@@ -358,6 +358,9 @@ void DebugPanel::draw(DisplaySettings& settings, const DebugDiagnostics& diagnos
                     else if(!state.ready)ImGui::TextWrapped("Load a game to use teleport and party controls.");
                     ImGui::TextWrapped("Debug changes can affect saved progress. Cheat switches reset when you restart or switch games.");
                     ImGui::EndDisabled();
+                    ImGui::SeparatorText("Presentation");
+                    ImGui::Checkbox("Experimental frame pacing", &settings.experimental_frame_pacing);
+                    ImGui::TextWrapped("Prioritize game updates over extra high-FPS draws. May lower displayed FPS. Only affects rates above Native; off by default.");
                     ImGui::SeparatorText("Save state snapshots");
                     ImGui::TextWrapped("Save the current moment and return to it later. Snapshots are kept separately from your in-game save.");
                     const auto find_snapshot = [&](const std::string& id) {

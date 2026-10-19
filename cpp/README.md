@@ -364,6 +364,8 @@ See [STATUS.md](STATUS.md) for the validation evidence and remaining limits.
 
 Higher frame rates are available under **F1 → Display → Frame rate**: Native, 90–300 FPS, or Uncapped (`--fps 0`). **Direct scene rendering** draws verified overworld backgrounds and sprites at fractional positions without blending completed frames; gameplay and audio retain their original speed. It adds one game frame of visual latency. Battles and unsupported effects retain native frames. Use `--native-frames` to disable smoothing, or `--interpolation` for legacy image-based generation. See [timing and verification](docs/timing.md).
 
+**F1 → Debug → Experimental frame pacing** can prioritize game updates over extra high-FPS draws. It defaults off, remembers your choice, and may lower displayed FPS. Native frame-rate mode is unaffected.
+
 **CRT Filter** in **F1 → Display** adds a flat CRT-Lottes Fast treatment:
 scanlines, aperture-grille phosphor detail and compensated brightness, without
 curvature, rounded corners or temporal trails. It works with native and direct

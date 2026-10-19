@@ -49,7 +49,9 @@ public:
     // the next picture/configure/completed_frame call. Native mode borrows the
     // producer canvas until its next mutation, as current_picture does.
     PresentationPicture picture(Time now);
-    void presented(Time now);
+    // Supply the wall time for picture sampling, diagnostics, drawing and swap.
+    // Omitted cost is zero for synthetic/untimed consumers.
+    void presented(Time now, Time::duration cost = Time::duration::zero());
     Time wake_time(Time now) const;
 
     // The latest native/filtered canvas, including partial-step results, rather

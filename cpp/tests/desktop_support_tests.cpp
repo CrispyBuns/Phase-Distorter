@@ -71,7 +71,8 @@ void option_contract() {
     const auto defaults = options({});
     require(!defaults.headless && defaults.vsync && defaults.audio && !defaults.replay_only &&
                 defaults.scale == 3 && defaults.display.frame_limit == 60 &&
-                defaults.display.interpolate_frames && defaults.display.direct_rendering,
+                defaults.display.interpolate_frames && defaults.display.direct_rendering &&
+                !defaults.display.experimental_frame_pacing,
             "Launch defaults changed");
     const auto selected =
         options({"--headless", "--frames", "0x100", "--buttons", "0x8000", "--game", "jp", "--aspect", "32:9",
@@ -125,6 +126,7 @@ void preference_contract(const std::filesystem::path &directory) {
     saved.frame_limit = 240;
     saved.interpolate_frames = false;
     saved.direct_rendering = false;
+    saved.experimental_frame_pacing = true;
     saved.aspect = eb::AspectRatio::Custom;
     saved.custom_aspect = 3.25f;
     eb::store_display_settings(path_text(path), saved, eb::GameVersion::JP);
@@ -132,7 +134,8 @@ void preference_contract(const std::filesystem::path &directory) {
     const auto restored = eb::load_display_settings(path_text(path), game);
     require(game == eb::GameVersion::JP && restored.widescreen && restored.reduce_flashing &&
                 restored.variable_refresh && restored.crt_filter && restored.frame_limit == 240 && !restored.interpolate_frames && !restored.direct_rendering &&
-                restored.aspect == eb::AspectRatio::Custom && restored.custom_aspect == 3.25f,
+                restored.aspect == eb::AspectRatio::Custom && restored.custom_aspect == 3.25f &&
+                restored.experimental_frame_pacing,
             "Display preferences did not roundtrip on a UTF-8 path");
     auto launch = options({"--config", path_text(path), "--game", "us", "--no-widescreen", "--no-vrr",
                            "--fps", "0", "--interpolation", "--no-crt", "--no-reduce-flashing", "--aspect", "4:3"});
@@ -145,15 +148,16 @@ void preference_contract(const std::filesystem::path &directory) {
     resolved = eb::resolve_display_settings(launch, game);
     require(game == eb::GameVersion::JP && resolved.widescreen && resolved.reduce_flashing &&
                 !resolved.variable_refresh && resolved.crt_filter && resolved.frame_limit == 240 && !resolved.interpolate_frames &&
-                resolved.custom_aspect == 3.25f,
+                resolved.custom_aspect == 3.25f && resolved.experimental_frame_pacing,
             "Unspecified CLI settings overwrote saved preferences");
     write_file(path, "widescreen 7\nvariable_refresh yes\nframe_limit 999\ninterpolate_frames 2\n"
-                     "crt_filter nope\naspect -1\ncustom_aspect nan\ngame other\nunknown 12\nreduce_flashing 1\n");
+                     "crt_filter nope\naspect -1\ncustom_aspect nan\ngame other\nunknown 12\nreduce_flashing 1\n"
+                     "experimental_frame_pacing yes\n");
     game = eb::GameVersion::JP;
     const auto recovered = eb::load_display_settings(path_text(path), game);
     require(!recovered.widescreen && !recovered.crt_filter && !recovered.variable_refresh && recovered.frame_limit == 60 &&
                 recovered.interpolate_frames && recovered.aspect == eb::AspectRatio::SixteenNine &&
-                recovered.reduce_flashing && game == eb::GameVersion::JP,
+                recovered.reduce_flashing && !recovered.experimental_frame_pacing && game == eb::GameVersion::JP,
             "Malformed preferences did not retain defaults and valid independent fields");
 }
 void sixteen_ten_contract(const std::filesystem::path &directory) {

@@ -394,6 +394,47 @@ void verify(SDL_Window* window, SDL_GLContext context, const std::string& prefix
     {
         eb::DebugPanel panel(window, context);
         panel.set_visible(true);
+        stats.machine_debug_available = false; // Host presentation also applies to native sessions.
+        settings.experimental_frame_pacing = false;
+        auto draw = [&] { background(); panel.draw(settings, stats); };
+        draw(); draw();
+        auto* layout = ImGui::FindWindowByName("EarthBound control panel###EBControlPanel");
+        require(layout, "Missing experimental pacing settings window");
+        auto* tabbar = ImGui::GetCurrentContext()->TabBars.GetByKey(layout->GetID("Control panel tabs"));
+        const ImGuiTabItem* debug_tab = nullptr;
+        for (auto& tab : tabbar->Tabs)
+            if (std::string(ImGui::TabBarGetTabName(tabbar, &tab)) == "Debug") debug_tab = &tab;
+        require(debug_tab, "Missing experimental pacing Debug tab");
+        click(window, panel, draw, int(tabbar->BarRect.Min.x + debug_tab->Offset + debug_tab->Width / 2),
+              int(tabbar->BarRect.GetCenter().y));
+        const auto checkbox = ImHashStr("Experimental frame pacing", 0, debug_tab->ID);
+        // Keyboard navigation scrolls the actual item into view; the checkbox
+        // itself is then exercised by SDL mouse events, including in native mode.
+        for (unsigned attempt = 0; attempt < 40 && ImGui::GetCurrentContext()->NavId != checkbox; ++attempt) {
+            auto event = key(window, SDLK_TAB);
+            panel.process_event(event); draw();
+            event.type = SDL_KEYUP; event.key.state = SDL_RELEASED;
+            panel.process_event(event); draw(); draw();
+        }
+        require(ImGui::GetCurrentContext()->NavId == checkbox, "Experimental pacing checkbox was not reachable");
+        const auto rect = ImGui::WindowRectRelToAbs(layout, layout->NavRectRel[ImGuiNavLayer_Main]);
+        const int x = int(rect.Min.x + ImGui::GetFrameHeight() / 2);
+        const int y = int(rect.GetCenter().y);
+        click(window, panel, draw, x, y);
+        require(settings.experimental_frame_pacing, "Debug checkbox did not enable experimental frame pacing");
+        require(!panel.take_game_action() && !panel.take_snapshot_action(),
+                "Presentation experiment emitted an unrelated game command");
+        if (!prefix.empty()) save(prefix + "-experimental-pacing.ppm", capture());
+        panel.set_visible(false); draw();
+        panel.set_visible(true); draw(); draw();
+        require(settings.experimental_frame_pacing, "Closing Debug options lost the pacing preference");
+        click(window, panel, draw, x, y);
+        require(!settings.experimental_frame_pacing, "Debug checkbox did not disable experimental frame pacing");
+        stats.machine_debug_available = true;
+    }
+    {
+        eb::DebugPanel panel(window, context);
+        panel.set_visible(true);
         stats.snapshots_available = true;
         auto draw = [&] { background(); panel.draw(settings, stats); };
         draw(); draw();

@@ -100,6 +100,65 @@ int main() {
             "Presentation fraction does not track game cadence");
         high.resume(Time{}+std::chrono::seconds(5)); high.simulated(1);
         require(!high.simulation_due(Time{}+std::chrono::seconds(5)),"Host suspension created a game tick backlog");
+        // Update completion cost must not change the source timeline or its rate.
+        eb::PresentationClock late(Time{},120);
+        Time arrived{};
+        for (unsigned k=1;k<=40;++k) {
+            arrived=Time{}+eb::FramePacer::period()*(k-1)+std::chrono::milliseconds(2);
+            late.simulated(1);
+        }
+        const double v=late.fraction(arrived+eb::FramePacer::period()*3/4)
+                      -late.fraction(arrived+eb::FramePacer::period()/4);
+        require(v>.499&&v<.501,"Constant update cost did not keep a constant motion rate");
+        require(late.fraction(arrived+std::chrono::microseconds(200))>late.fraction(arrived),
+            "Sustained uniform lateness still froze the blend endpoint");
+        // Alternating update costs change when frames complete, not how fast
+        // the picture moves: the fraction spans one native period per window.
+        eb::PresentationClock alt(Time{},120);
+        double v8{},v2{};
+        for (unsigned k=1;k<=41;++k) {
+            const auto arrived_alt=Time{}+eb::FramePacer::period()*(k-1)
+                +std::chrono::milliseconds(k%2?8:2);
+            alt.simulated(1);
+            if (k==39) v8=alt.fraction(arrived_alt+std::chrono::microseconds(3000))
+                            -alt.fraction(arrived_alt);
+            if (k==40) v2=alt.fraction(arrived_alt+std::chrono::microseconds(3000))
+                            -alt.fraction(arrived_alt);
+        }
+        require(v8>.179&&v8<.181&&v2>.179&&v2<.181,
+            "Alternating update costs changed the motion rate");
+        // A draw slot inside the clearance is deferred past the tick.
+        eb::PresentationClock gated(Time{},120);
+        gated.simulated(1);
+        gated.presented(Time{}, std::chrono::microseconds(1500));
+        const auto near_deadline=Time{}+eb::FramePacer::period()-std::chrono::milliseconds(1);
+        require(!gated.presentation_due(near_deadline),"Draw slot entered the presentation clearance before the tick deadline");
+        const auto tick_arrival=Time{}+eb::FramePacer::period();
+        gated.simulated(1);
+        require(gated.presentation_due(tick_arrival+std::chrono::microseconds(100)),
+            "Deferred draw slot was not presented after the tick");
+        eb::PresentationClock outside(Time{},120);
+        outside.simulated(1);
+        outside.presented(Time{});
+        const auto slot=outside.wake(Time{}+eb::FramePacer::period()/2);
+        require(slot>Time{}+eb::FramePacer::period()/2 && slot<Time{}+std::chrono::microseconds(8400),
+            "wake missed a drawable draw slot outside the clearance");
+        // 144 fps slots drift into the clearance window; such a wake goes
+        // straight to the tick instead of waking up to sleep again.
+        eb::PresentationClock gated144(Time{},144);
+        gated144.simulated(1);
+        gated144.presented(Time{}+std::chrono::microseconds(10000), std::chrono::milliseconds(3));
+        require(gated144.wake(Time{}+std::chrono::microseconds(11000))==Time{}+eb::FramePacer::period(),
+            "wake inside the clearance must target the tick");
+        // The clearance follows the measured presentation cost instead of a fixed
+        // budget: cheap draws stay drawable up to the tick, costly ones defer.
+        eb::PresentationClock cost(Time{},300);
+        cost.simulated(1);
+        cost.presented(Time{}, std::chrono::microseconds(2000));
+        require(cost.presentation_due(Time{}+std::chrono::microseconds(12000)),
+            "Clearance suppressed draws beyond the measured presentation cost");
+        require(!cost.presentation_due(Time{}+std::chrono::microseconds(15000)),
+            "Clearance did not follow the measured presentation cost");
         eb::FramePacer switched(Time{});
         const auto changed=Time{}+std::chrono::seconds(30);
         switched.set_rate(changed, eb::FramePacer::rate_for_refresh(144,true));

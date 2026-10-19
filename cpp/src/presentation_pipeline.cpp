@@ -19,7 +19,7 @@ PresentationPipeline::PresentationPipeline(Time now, const DisplaySettings& sett
       direct_rendering_(settings.direct_rendering),
       native_rate_(native_rate), presentation_rate_(presentation_rate),
       native_pacer_(now, validated_native_rate(native_rate, presentation_rate)),
-      presentation_clock_(now, presentation_rate),
+      presentation_clock_(now, presentation_rate, settings.experimental_frame_pacing),
       current_picture_{initial_frame.pixels, initial_frame.width, initial_frame.fixed_aspect} {
     last_presented_ = now;
     if (reduce_flashing_ && !initial_frame.pixels.empty()) {
@@ -33,6 +33,7 @@ PresentationPipeline::PresentationPipeline(Time now, const DisplaySettings& sett
 bool PresentationPipeline::configure(const DisplaySettings& settings, double native_rate, double presentation_rate,
                                      Time now) {
     validated_native_rate(native_rate, presentation_rate);
+    presentation_clock_.set_guard_enabled(settings.experimental_frame_pacing);
     const bool high_rate = presentation_enabled_ && settings.high_frame_rate();
     if (high_rate != high_rate_ || presentation_rate != presentation_rate_) {
         high_rate_ = high_rate;
@@ -165,12 +166,12 @@ PresentationPicture PresentationPipeline::picture(Time now) {
     return current_picture_;
 }
 
-void PresentationPipeline::presented(Time now) {
+void PresentationPipeline::presented(Time now, Time::duration cost) {
     ++presented_frames_;
     fresh_picture_pending_ = false;
     last_presented_ = now;
     if (high_rate_)
-        presentation_clock_.presented(now);
+        presentation_clock_.presented(now, cost);
     else {
         native_picture_pending_ = false;
         native_wait_pending_ = true;

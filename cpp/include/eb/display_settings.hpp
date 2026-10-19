@@ -24,6 +24,8 @@ struct DisplaySettings {
     bool interpolate_frames = true;
     // Source-scene rendering takes precedence over legacy frame generation.
     bool direct_rendering = true;
+    // Optional high-rate deadline guard, exposed in Debug and off by default.
+    bool experimental_frame_pacing = false;
     bool high_frame_rate() const { return frame_limit == 0 || frame_limit > 60; }
     static bool valid_frame_limit(int value) { return value == 0 || (value >= 60 && value <= 300); }
     AspectRatio aspect = AspectRatio::SixteenNine;

@@ -84,6 +84,19 @@ omit presentation slots while simulation catches up. Long suspensions reset the
 host clock instead of producing an unbounded backlog. A slow computer or a driver
 swap limit can still prevent reaching the requested rate.
 
+**F1 > Debug > Experimental frame pacing** optionally reserves time for the next
+game update before another high-rate draw. It defaults off and is saved with
+display preferences. Native frame-rate mode is unaffected. Enabling or disabling
+it takes effect immediately without rebasing simulation or discarding pictures.
+While enabled, the scheduler reserves the measured wall time
+for picture sampling, diagnostics, rendering and swapping. Its estimate rises
+immediately after expensive work and decays by one eighth toward cheaper work.
+The exclusion adds 12.5% headroom and is capped at one quarter of a native
+period (about 4.16 ms). Draw eligibility and wake selection share this rule:
+a conflicting draw waits for the next simulation tick instead of repeatedly
+waking inside the exclusion. An unexpected driver stall or host interruption
+can still miss a deadline; the bounded guard does not predict arbitrary stalls.
+
 **Direct scene rendering** is enabled by default for higher rates. It draws
 background planes and native actor parts directly at the window's
 resolution. Camera and actor positions are interpolated between native ticks;
@@ -91,6 +104,10 @@ completed images are never blended, warped or motion-matched. A moving source
 pixel can consequently occupy distinct display-pixel positions between ticks.
 Sprite animation poses, input, collisions, scripts, enemies and audio still
 advance on the original game clock. This adds one game frame of visual latency.
+Interpolation stays on that native timeline, without shifting its phase in
+response to CPU completion times. That avoids jumps and holds when successive
+updates have different costs. If a source frame is genuinely overdue, the
+available endpoint is held; presentation does not extrapolate game state.
 
 The current direct path supports verified overworld scenes, including wide and
 ultrawide canvases. It samples 16 extra source pixels around the viewport, keeps
@@ -183,6 +200,15 @@ CTest because host scheduling can affect its measurements. This change also
 improves the Native pacing path on Windows.
 
 ## Verification
+
+`presentation_scheduler_tests` exercises the real pipeline and scene-motion
+implementation with injected wall time across 81 combinations: nine caps
+(including Uncapped and VRR-style 59.4/118.8 rates), three update-cost patterns,
+and three presentation costs. It checks simulation accounting, motion across
+endpoint changes, tick deadlines, draw-cost spikes, recovery and long suspension.
+`presentation_pipeline_tests` also checks both movement directions and both
+8 ms/2 ms update-cost parities across source-frame promotion. See the
+[PR #9 follow-up measurements](pr9-pacing.md) for the comparison and its limits.
 
 `gameplay_timing_tests` runs the compiled US and JP entity dispatcher, action
 script VM, movement and screen callbacks. A synthetic 30-entity roster with

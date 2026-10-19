@@ -36,6 +36,8 @@ eb::DisplaySettings load_display_settings(const std::string &path, eb::GameVersi
                 settings.interpolate_frames = value == "1";
             else if (key == "direct_rendering" && (value == "0" || value == "1"))
                 settings.direct_rendering = value == "1";
+            else if (key == "experimental_frame_pacing" && (value == "0" || value == "1"))
+                settings.experimental_frame_pacing = value == "1";
             else if (key == "frame_limit") {
                 const auto limit = std::stoi(value, &used);
                 if (used == value.size() && eb::DisplaySettings::valid_frame_limit(limit))
@@ -104,7 +106,9 @@ void store_display_settings(const std::string &path, const eb::DisplaySettings &
                << "\ninterpolate_frames " << int(settings.interpolate_frames)
                << "\ncrt_filter " << int(settings.crt_filter)
                << "\ndirect_rendering " << int(settings.direct_rendering) << "\ncustom_aspect "
-               << std::setprecision(9) << settings.custom_aspect << "\ngame " << game_basename(game) << '\n';
+               << std::setprecision(9) << settings.custom_aspect
+               << "\nexperimental_frame_pacing " << int(settings.experimental_frame_pacing)
+               << "\ngame " << game_basename(game) << '\n';
         output.close();
         if (!output)
             throw std::runtime_error("Cannot write display preferences: " + path);
