@@ -713,8 +713,8 @@ in `launchers/linux/lib/`, maintainers can validate and recreate the whitelisted
 runnable packages using Python 3:
 
 ```sh
-python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --include-launchers --check
-python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --include-launchers
+python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --macos-app "build/macos-release/Phase Distorter.app" --include-launchers --check
+python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --macos-app "build/macos-release/Phase Distorter.app" --include-launchers
 ```
 
 The packager writes versioned archives and the combined launcher snapshot to

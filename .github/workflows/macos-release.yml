@@ -1,11 +1,20 @@
 name: macOS release
 on:
   workflow_dispatch:
+    inputs:
+      runner:
+        description: Native Mac builder (use the alternate pool if one is busy)
+        type: choice
+        default: macos-15
+        options:
+          - macos-15
+          - macos-15-intel
+          - macos-14
 permissions:
   contents: read
 jobs:
   universal:
-    runs-on: macos-15
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +27,7 @@ jobs:
             releases/Phase-Distorter-*-macos-universal.zip
             build/macos-release/macos-verification.tar.gz
           if-no-files-found: error
-      - name: Test on Apple silicon
+      - name: Test on the build host
         run: bash cpp/tools/test-macos-release.sh
   intel:
     needs: universal
