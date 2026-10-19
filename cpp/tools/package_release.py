@@ -299,6 +299,25 @@ def write_zip(destination: Path, entries: list[Entry]) -> None:
         Path(temporary).unlink(missing_ok=True)
 
 
+def update_archive_checksums(releases: Path) -> None:
+    # Old downloads can live only on GitHub. Keep their published hashes even
+    # when a source checkout contains just the latest archives.
+    destination = releases / "SHA256SUMS"
+    hashes = {}
+    if destination.exists():
+        for line in destination.read_text(encoding="utf-8").splitlines():
+            digest, name = line.split("  ", 1)
+            if not re.fullmatch(r"[0-9a-f]{64}", digest) or not re.fullmatch(r"Phase-Distorter-[A-Za-z0-9._+-]+\.zip", name):
+                raise ValueError("Malformed release archive checksum record")
+            hashes[name] = digest
+    for path in releases.glob("Phase-Distorter-*.zip"):
+        if path.is_file():
+            hashes[path.name] = sha256(path.read_bytes())
+    temporary = releases / "SHA256SUMS.tmp"
+    temporary.write_text("".join(f"{hashes[name]}  {name}\n" for name in sorted(hashes)), encoding="utf-8")
+    temporary.replace(destination)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", default=(ROOT / "VERSION").read_text(encoding="utf-8").strip())
@@ -338,11 +357,7 @@ def main() -> int:
         # Retain hashes for older versioned ZIPs as well as this release.
         # The enclosing checksum file hashes the ZIPs only. ZIP contents never
         # include this file or the repository checksum file, avoiding cycles.
-        archives = sorted(releases.glob("Phase-Distorter-*.zip"))
-        text = "".join(f"{sha256(path.read_bytes())}  {path.name}\n" for path in archives if path.is_file())
-        temporary = releases / "SHA256SUMS.tmp"
-        temporary.write_text(text, encoding="utf-8")
-        temporary.replace(releases / "SHA256SUMS")
+        update_archive_checksums(releases)
     return 0
 
 

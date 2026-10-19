@@ -132,6 +132,18 @@ class LauncherReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Retail/user-data input rejected"):
             release.file_entry(notes, "PATCH-NOTES.md")
 
+    def test_missing_historical_archives_retain_their_published_hashes(self):
+        folder = self.root / "releases"
+        folder.mkdir()
+        digest = "a" * 64
+        old = "Phase-Distorter-0.1-linux-x86_64.zip"
+        (folder / "SHA256SUMS").write_text(f"{digest}  {old}\n")
+        (folder / "Phase-Distorter-0.2-linux-x86_64.zip").write_bytes(b"new archive")
+        release.update_archive_checksums(folder)
+        rows = (folder / "SHA256SUMS").read_text().splitlines()
+        self.assertIn(f"{digest}  {old}", rows)
+        self.assertIn(f"{hashlib.sha256(b'new archive').hexdigest()}  Phase-Distorter-0.2-linux-x86_64.zip", rows)
+
 
 if __name__ == "__main__":
     unittest.main()
