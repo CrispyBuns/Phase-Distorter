@@ -399,6 +399,10 @@ int main() {
         require(channel(500, 10, 0) > channel(500, 10, 2) &&
                 channel(500, 650, 2) > channel(500, 650, 0), "CRT native image orientation changed");
         require(channel(500, 319, 0) != channel(500, 320, 0), "CRT scanline pattern missing");
+        std::cout << "[DEBUG-MAC-CRT] row320:";
+        for (int x = 498; x < 507; ++x)
+            std::cout << ' ' << x << '=' << channel(x,320,0) << ',' << channel(x,320,1) << ',' << channel(x,320,2);
+        std::cout << " plain=" << int(plain.rgb[(320*plain.width+501)*3]) << '\n';
         require(channel(501, 320, 0) != channel(502, 320, 0) ||
                 channel(501, 320, 1) != channel(502, 320, 1), "CRT phosphor mask missing");
         present.draw(pixels, 398, 224, 1194, 672);
