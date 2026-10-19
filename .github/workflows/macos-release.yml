@@ -10,10 +10,20 @@ on:
           - macos-15
           - macos-15-intel
           - macos-14
+      verify_artifact_run:
+        description: Optional existing build run ID; verify its artifact without rebuilding
+        type: string
+        default: ''
+      verification_runner:
+        description: Optional alternate runner for checking the existing artifact
+        type: string
+        default: ''
 permissions:
   contents: read
+  actions: read
 jobs:
   universal:
+    if: ${{ inputs.verify_artifact_run == '' }}
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 90
     steps:
@@ -29,14 +39,17 @@ jobs:
           if-no-files-found: error
       - name: Test on the build host
         run: bash cpp/tools/test-macos-release.sh
-  intel:
+  other_architecture:
     needs: universal
-    runs-on: ${{ inputs.runner == 'macos-15-intel' && 'macos-15' || 'macos-15-intel' }}
+    if: ${{ always() && (needs.universal.result == 'success' || inputs.verify_artifact_run != '') }}
+    runs-on: ${{ inputs.verification_runner || (inputs.runner == 'macos-15-intel' && 'macos-15' || 'macos-15-intel') }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: macos-universal
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.verify_artifact_run || github.run_id }}
       - name: Test the same application on the other CPU architecture
         run: bash cpp/tools/test-macos-release.sh
