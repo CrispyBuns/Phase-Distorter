@@ -188,6 +188,37 @@ void sixteen_ten_contract(const std::filesystem::path &directory) {
     require(resolved.render_width(1280, 800) == 358,
             "Re-enabling widescreen did not restore the selected 16:10 view");
 }
+void macbook_contract(const std::filesystem::path &directory) {
+    struct Panel { const char *name; const char *ratio; eb::AspectRatio preset; int width, height; };
+    const Panel panels[] = {
+        {"macbook-air-13", "2560:1664", eb::AspectRatio::MacBookAir13, 2560, 1664},
+        {"macbook-air-15", "2880:1864", eb::AspectRatio::MacBookAir15, 2880, 1864},
+        {"macbook-pro-14", "3024:1964", eb::AspectRatio::MacBookPro14, 3024, 1964},
+        {"macbook-pro-16", "3456:2234", eb::AspectRatio::MacBookPro16, 3456, 2234},
+    };
+    require(int(eb::AspectRatio::Custom) == 6 && int(eb::AspectRatio::SixteenTen) == 2,
+            "Adding Mac presets changed existing persisted preference IDs");
+    const auto path = path_text(directory / "macbook.cfg");
+    for (const auto &panel : panels) {
+        auto settings = options({"--aspect", panel.name}).display;
+        require(settings.widescreen && settings.aspect == panel.preset &&
+                    settings.target_aspect(1920, 1080) == double(panel.width) / panel.height,
+                "MacBook preset lost its exact panel proportions on a different display");
+        require(options({"--aspect", panel.ratio}).display.aspect == panel.preset,
+                "Numeric MacBook ratio did not retain its named preset");
+        const int canvas = settings.render_width(panel.width, panel.height);
+        require(canvas % 2 == 0 && canvas >= 256 && canvas <= 1024 &&
+                    std::abs(canvas - 224.0 * panel.width / panel.height) <= 1,
+                "MacBook canvas did not retain centered, bounded native coverage");
+        eb::store_display_settings(path, settings, eb::GameVersion::US);
+        auto game = eb::GameVersion::US;
+        settings = eb::resolve_display_settings(options({"--config", path}), game);
+        require(settings.aspect == panel.preset, "MacBook preset did not survive preference persistence");
+        settings.widescreen = false;
+        require(settings.render_width(panel.width, panel.height) == 256,
+                "Disabling MacBook widescreen changed the original picture width");
+    }
+}
 void replay_contract(const std::filesystem::path &directory) {
     const auto path = directory / "route.input";
     write_file(path, "# frame masks\n\n2 0x80 # press\n5 0\n10 512\n");
@@ -309,6 +340,7 @@ int main() {
         option_contract();
         preference_contract(directory.path);
         sixteen_ten_contract(directory.path);
+        macbook_contract(directory.path);
         replay_contract(directory.path);
         storage_contract(directory.path);
         audio_contract(directory.path);

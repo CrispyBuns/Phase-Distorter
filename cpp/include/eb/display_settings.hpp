@@ -5,7 +5,10 @@
 
 namespace eb {
 // Numeric values are persisted by the frontend; keep their order stable.
-enum class AspectRatio { Native, FourThree, SixteenTen, SixteenNine, TwentyOneNine, Window, Custom };
+enum class AspectRatio {
+    Native, FourThree, SixteenTen, SixteenNine, TwentyOneNine, Window, Custom,
+    MacBookAir13, MacBookAir15, MacBookPro14, MacBookPro16
+};
 
 // Host presentation preferences. Picture settings never change game state;
 // VRR selects host pacing without altering the emulated hardware clock ratios.
@@ -28,6 +31,7 @@ struct DisplaySettings {
     bool experimental_frame_pacing = false;
     bool high_frame_rate() const { return frame_limit == 0 || frame_limit > 60; }
     static bool valid_frame_limit(int value) { return value == 0 || (value >= 60 && value <= 300); }
+    static bool valid_aspect(int value) { return value >= 0 && value <= int(AspectRatio::MacBookPro16); }
     AspectRatio aspect = AspectRatio::SixteenNine;
     float custom_aspect = 16.f / 9.f;
 
@@ -43,6 +47,10 @@ struct DisplaySettings {
         case AspectRatio::SixteenTen: value = 16.0 / 10.0; break;
         case AspectRatio::SixteenNine: value = 16.0 / 9.0; break;
         case AspectRatio::TwentyOneNine: value = 21.0 / 9.0; break;
+        case AspectRatio::MacBookAir13: value = 2560.0 / 1664.0; break;
+        case AspectRatio::MacBookAir15: value = 2880.0 / 1864.0; break;
+        case AspectRatio::MacBookPro14: value = 3024.0 / 1964.0; break;
+        case AspectRatio::MacBookPro16: value = 3456.0 / 2234.0; break;
         case AspectRatio::Window:
             value = drawable_height > 0 ? double(drawable_width) / drawable_height : native;
             break;

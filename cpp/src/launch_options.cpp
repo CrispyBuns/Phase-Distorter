@@ -22,6 +22,14 @@ void aspect_option(eb::DisplaySettings &settings, const std::string &text) {
         settings.aspect = eb::AspectRatio::TwentyOneNine;
     else if (text == "window")
         settings.aspect = eb::AspectRatio::Window;
+    else if (text == "macbook-air-13" || text == "2560:1664")
+        settings.aspect = eb::AspectRatio::MacBookAir13;
+    else if (text == "macbook-air-15" || text == "2880:1864")
+        settings.aspect = eb::AspectRatio::MacBookAir15;
+    else if (text == "macbook-pro-14" || text == "3024:1964")
+        settings.aspect = eb::AspectRatio::MacBookPro14;
+    else if (text == "macbook-pro-16" || text == "3456:2234")
+        settings.aspect = eb::AspectRatio::MacBookPro16;
     else {
         const auto separator = text.find(':');
         std::size_t used = 0;
@@ -82,6 +90,7 @@ LaunchOptions parse_options(int argc, char **argv) {
                          "  --debug            Open the optional control panel (F1 toggles)\n"
                          "  --widescreen       Enable presentation-only expanded picture\n"
                          "  --aspect RATIO     native, 4:3, 16:10, 16:9, 21:9, window, or W:H\n"
+                         "                     macbook-air-13, macbook-air-15, macbook-pro-14, macbook-pro-16\n"
                          "  --no-widescreen    Use the original 256x224 view\n"
                          "  --reduce-flashing Enable the optional photosensitivity filter\n"
                          "  --no-reduce-flashing  Disable the photosensitivity filter (default)\n"

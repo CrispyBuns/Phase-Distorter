@@ -16,6 +16,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import os
+import plistlib
 from pathlib import Path, PurePosixPath
 import re
 import stat
@@ -110,7 +111,8 @@ def template(name: str, version: str, output_name: str) -> Entry:
 
 def package_entries(platform: str, version: str, runtime: Path,
                     patch_notes: Path | None = None,
-                    static_cxx_runtime: bool = False) -> list[Entry]:
+                    static_cxx_runtime: bool = False,
+                    macos_app: Path | None = None) -> list[Entry]:
     # No recursive source-tree copy: adding a file to a worktree cannot silently
     # add it to a release. Every artifact, dependency and notice is named here.
     entries = [file_entry(ROOT / source, name) for source, name in COMMON_NOTICES]
@@ -119,7 +121,34 @@ def package_entries(platform: str, version: str, runtime: Path,
                     Entry("VERSION", (version + "\n").encode())))
     if patch_notes is not None:
         entries.append(file_entry(patch_notes, "PATCH-NOTES.md"))
-    if platform == "windows":
+    if platform == "macos":
+        if macos_app is None:
+            raise ValueError("macOS packaging requires --macos-app")
+        info = plistlib.loads((macos_app / "Contents/Info.plist").read_bytes())
+        if (info.get("CFBundleIdentifier") != "com.therunaway5.phase-distorter" or
+                info.get("CFBundleShortVersionString") != version):
+            raise ValueError("macOS bundle identity/version does not match the release")
+        paths = {
+            "Contents/Info.plist", "Contents/MacOS/Phase Distorter",
+            "Contents/Frameworks/libSDL2-2.0.0.dylib", "Contents/Resources/PhaseDistorter.icns",
+            "Contents/Resources/NOTICE.txt", "Contents/Resources/README.txt",
+            "Contents/_CodeSignature/CodeResources",
+            *("Contents/Resources/" + name for _, name in COMMON_NOTICES),
+        }
+        actual = {path.relative_to(macos_app).as_posix() for path in macos_app.rglob("*")
+                  if path.is_file() or path.is_symlink()}
+        if actual != paths:
+            raise ValueError(f"Unexpected/missing macOS bundle files: {actual.symmetric_difference(paths)}")
+        for path in sorted(paths):
+            source = macos_app / path
+            if source.is_symlink():
+                raise ValueError(f"Unexpected macOS bundle symlink: {source}")
+            executable = path in {"Contents/MacOS/Phase Distorter", "Contents/Frameworks/libSDL2-2.0.0.dylib"}
+            entry = file_entry(source, "Phase Distorter.app/" + path, 0o755 if executable else 0o644)
+            if executable:
+                require_universal_macho(entry)
+            entries.append(entry)
+    elif platform == "windows":
         for source, name in (("eb_cpp.exe", "Phase Distorter.exe"), ("SDL2.dll", "SDL2.dll")):
             entry = file_entry(ROOT / "launchers/windows/bin" / source, name, 0o755)
             require_native(entry, platform)
@@ -141,10 +170,23 @@ def package_entries(platform: str, version: str, runtime: Path,
             entries.append(entry)
         for name in RUNTIME_NOTICES:
             entries.append(file_entry(runtime / name, "lib/" + name))
-    return finalize_entries(entries, platform, version)
+    return finalize_entries(entries, platform, version, "arm64+x86_64" if platform == "macos" else "x86_64")
 
 
-def finalize_entries(entries: list[Entry], platform: str, version: str) -> list[Entry]:
+def require_universal_macho(entry: Entry) -> None:
+    data = entry.data
+    if len(data) < 48 or data[:4] != b"\xca\xfe\xba\xbe":
+        raise ValueError(f"Expected universal Mach-O binary: {entry.name}")
+    count = struct.unpack_from(">I", data, 4)[0]
+    if count != 2 or {struct.unpack_from(">I", data, 8 + 20 * i)[0] for i in range(count)} != {0x01000007, 0x0100000c}:
+        raise ValueError(f"Expected Intel and Apple silicon Mach-O slices: {entry.name}")
+    for i in range(count):
+        offset, size = struct.unpack_from(">II", data, 16 + 20 * i)
+        if offset < 48 or size < 32 or offset + size > len(data) or data[offset:offset + 4] != b"\xcf\xfa\xed\xfe":
+            raise ValueError(f"Invalid Mach-O slice bounds: {entry.name}")
+
+
+def finalize_entries(entries: list[Entry], platform: str, version: str, architecture: str = "x86_64") -> list[Entry]:
     names = [entry.name for entry in entries]
     if len(set(names)) != len(names):
         raise ValueError("Duplicate package paths")
@@ -153,7 +195,7 @@ def finalize_entries(entries: list[Entry], platform: str, version: str) -> list[
     entries.sort(key=lambda entry: entry.name)
     manifest = {
         "schema": 1, "project": "Phase Distorter", "version": version,
-        "platform": platform, "architecture": "x86_64",
+        "platform": platform, "architecture": architecture,
         "files": [{"path": entry.name, "size": len(entry.data), "mode": f"{entry.mode:04o}",
                    "sha256": sha256(entry.data)} for entry in entries],
         "scope": "Payload files only; SHA256SUMS additionally covers this manifest. Neither record is a signature.",
@@ -186,7 +228,8 @@ def launcher_entries(packages: dict[str, list[Entry]], version: str) -> list[Ent
     entries["launchers/VERSION"] = Entry("launchers/VERSION", (version + "\n").encode())
     for name, mode in (("launch.sh", 0o755), ("launch.bat", 0o644)):
         entries[name] = file_entry(ROOT / name, name, mode)
-    return finalize_entries(list(entries.values()), "linux+windows", version)
+    return finalize_entries(list(entries.values()), "+".join(sorted(packages)), version,
+                            "arm64+x86_64" if "macos" in packages else "x86_64")
 
 
 def write_folder(destination: Path, entries: list[Entry]) -> None:
@@ -259,7 +302,8 @@ def write_zip(destination: Path, entries: list[Entry]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", default=(ROOT / "VERSION").read_text(encoding="utf-8").strip())
-    parser.add_argument("--platform", choices=("all", "windows", "linux"), default="all")
+    parser.add_argument("--platform", choices=("all", "windows", "linux", "macos"), default="all")
+    parser.add_argument("--macos-app", type=Path, help="Verified universal macOS app from build-macos.sh")
     parser.add_argument("--linux-runtime-dir", type=Path, default=ROOT / "launchers/linux/lib")
     parser.add_argument("--linux-static-cxx-runtime", action="store_true",
                         help="Package only SDL2 when the Linux application's C++ runtime is linked statically")
@@ -269,19 +313,20 @@ def main() -> int:
     args = parser.parse_args()
     if not re.fullmatch(r"\d+\.\d+(?:\.\d+)?(?:[-+][A-Za-z0-9.-]+)?", args.version):
         parser.error("Version must be a filename-safe release version such as 0.1 or 0.1.0")
-    platforms = ("windows", "linux") if args.platform == "all" else (args.platform,)
+    platforms = (("windows", "linux", "macos") if args.macos_app else ("windows", "linux")) if args.platform == "all" else (args.platform,)
     if args.include_launchers and args.platform != "all":
         parser.error("--include-launchers requires --platform all")
     # Validate all selected packages first; a missing runtime or notice should
     # fail before any previous release archive is replaced.
     packages = {platform: package_entries(platform, args.version, args.linux_runtime_dir, args.patch_notes,
-                                         args.linux_static_cxx_runtime)
+                                         args.linux_static_cxx_runtime, args.macos_app)
                 for platform in platforms}
     if args.include_launchers:
         packages["launchers"] = launcher_entries(packages, args.version)
     releases = ROOT / "releases"
     for platform, entries in packages.items():
-        name = f"Phase-Distorter-{args.version}-{platform}-x86_64.zip"
+        architecture = "universal" if platform == "macos" else "multiarch" if platform == "launchers" and args.macos_app else "x86_64"
+        name = f"Phase-Distorter-{args.version}-{platform}-{architecture}.zip"
         if not args.check:
             releases.mkdir(exist_ok=True)
             if platform == "launchers":

@@ -48,7 +48,7 @@ eb::DisplaySettings load_display_settings(const std::string &path, eb::GameVersi
                 game = value == "mother2" ? eb::GameVersion::JP : eb::GameVersion::US;
             else if (key == "aspect") {
                 const auto aspect = std::stoi(value, &used);
-                if (used == value.size() && aspect >= 0 && aspect <= int(eb::AspectRatio::Custom))
+                if (used == value.size() && DisplaySettings::valid_aspect(aspect))
                     settings.aspect = static_cast<eb::AspectRatio>(aspect);
             } else if (key == "custom_aspect") {
                 const auto aspect = std::stof(value, &used);

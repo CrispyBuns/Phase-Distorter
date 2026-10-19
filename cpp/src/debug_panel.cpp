@@ -189,11 +189,15 @@ void DebugPanel::draw(DisplaySettings& settings, const DebugDiagnostics& diagnos
                     ImGui::Spacing();
                     ImGui::Checkbox("Widescreen", &settings.widescreen);
                     ImGui::BeginDisabled(!settings.widescreen);
-                    constexpr std::array<const char*, 7> labels{
-                        "Game (256:224)", "4:3", "16:10 (Steam Deck)", "16:9", "21:9", "Window", "Custom"};
-                    constexpr std::array<AspectRatio, 7> values{
+                    constexpr std::array<const char*, 11> labels{
+                        "Game (256:224)", "4:3", "16:10 (Steam Deck / Mac)", "16:9", "21:9", "Window", "Custom",
+                        "MacBook Air 13 (2560:1664)", "MacBook Air 15 (2880:1864)",
+                        "MacBook Pro 14 (3024:1964)", "MacBook Pro 16 (3456:2234)"};
+                    constexpr std::array<AspectRatio, 11> values{
                         AspectRatio::Native, AspectRatio::FourThree, AspectRatio::SixteenTen,
-                        AspectRatio::SixteenNine, AspectRatio::TwentyOneNine, AspectRatio::Window, AspectRatio::Custom};
+                        AspectRatio::SixteenNine, AspectRatio::TwentyOneNine, AspectRatio::Window, AspectRatio::Custom,
+                        AspectRatio::MacBookAir13, AspectRatio::MacBookAir15,
+                        AspectRatio::MacBookPro14, AspectRatio::MacBookPro16};
                     const auto current = std::find(values.begin(), values.end(), settings.aspect);
                     // Keep the combo index local: the saved enum is not assumed
                     // to be a valid array subscript after loading preferences.

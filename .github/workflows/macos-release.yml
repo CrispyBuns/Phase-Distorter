@@ -1,0 +1,33 @@
+name: macOS release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  universal:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build universal application and release ZIP
+        run: bash cpp/tools/build-macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal
+          path: |
+            releases/Phase-Distorter-*-macos-universal.zip
+            build/macos-release/macos-verification.tar.gz
+          if-no-files-found: error
+      - name: Test on Apple silicon
+        run: bash cpp/tools/test-macos-release.sh
+  intel:
+    needs: universal
+    runs-on: macos-15-intel
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-universal
+      - name: Test the same application on Intel
+        run: bash cpp/tools/test-macos-release.sh
