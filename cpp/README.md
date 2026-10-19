@@ -283,14 +283,15 @@ and sprite storage for comparisons. See
 
 Press **F1** to open or close the ImGui control panel, or launch with `--debug`.
 Its Display tab enables widescreen and selects the original aspect, 4:3, 16:10,
-16:9, 21:9, the window's aspect, or a custom width/height ratio. **F11** toggles
+16:9, 21:9, MacBook Air 13/15 and Pro 14/16 panel proportions, the window's
+aspect, or a custom width/height ratio. **F11** toggles
 fullscreen. Escape closes an open panel; otherwise it exits the game. Physical
 keyboard/controller input is captured while the panel is open. Scripted input
 continues independently. The Diagnostics tab displays copied CPU, sound, frame,
 and timing information without allowing game-state edits.
 
 For Steam Deck's [1280×800 display](https://www.steamdeck.com/en/tech), enable
-**Widescreen** and choose **16:10 (Steam Deck)**. Steam launch options
+**Widescreen** and choose **16:10 (Steam Deck / Mac)**. Steam launch options
 `--aspect 16:10 --fullscreen` start directly in the fullscreen 16:10 view:
 
 ```sh
@@ -299,6 +300,14 @@ For Steam Deck's [1280×800 display](https://www.steamdeck.com/en/tech), enable
 
 The expanded game view fills the screen; fixed intro cards retain their
 authored aspect ratio before returning to the selected view.
+
+The MacBook presets use [Apple's Air panel dimensions](https://www.apple.com/macbook-air/specs/)
+(2560×1664 and 2880×1864) and [Pro panel dimensions](https://www.apple.com/macbook-pro/specs/)
+(3024×1964 and 3456×2234). They are available on every platform, including via
+`--aspect macbook-air-13`, `macbook-air-15`, `macbook-pro-14` and `macbook-pro-16`.
+Older MacBooks use 16:10; common Mac desktop displays use 16:9. Use Window to
+follow the actual drawable area, which can differ from the complete panel on
+a notched display. These settings choose proportions, not display resolution.
 
 Widescreen adds picture on either side of the original 256×224 view. Map
 scenery uses data beyond the streamed tile buffer, battle patterns continue

@@ -1,8 +1,11 @@
-Phase Distorter @VERSION@ - combined Linux / Windows x86-64 launcher folder
+Phase Distorter @VERSION@ - combined Linux / Windows / macOS launcher folder
 
-Extract the complete Phase-Distorter-@VERSION@-launchers-x86_64 folder.
+Extract the complete versioned launcher folder.
 On Linux, run ./launch.sh or open launchers/linux/bin/eb_cpp directly.
 On Windows, double-click launch.bat or open launchers\windows\bin\eb_cpp.exe.
+On macOS 11 or later, open Phase Distorter.app (Apple silicon and Intel).
+The macOS app is ad-hoc signed, without Developer ID signing or notarization;
+first launch may require Privacy & Security > Open Anyway.
 Keep the directory structure intact. The Linux SDL2 runtime lives in
 launchers/linux/lib/; C++ support is linked privately into the Linux application.
 Windows SDL2.dll stays beside eb_cpp.exe.
@@ -16,6 +19,7 @@ launch. No ROM, imported asset pack, save or personal preference is included.
 Existing imports and saves remain in the external application-data directory:
   Linux: ${XDG_DATA_HOME:-$HOME/.local/share}/ebsrc/EarthBoundCpp/
   Windows: %APPDATA%\ebsrc\EarthBoundCpp\
+  macOS: ~/Library/Application Support/ebsrc/EarthBoundCpp/
 Back up .srm files before updating. Extract updates into a fresh folder.
 
 F1 opens Settings (Display, Controller, Assets, Diagnostics and Debug).
@@ -26,7 +30,7 @@ choose a game, and --no-config to ignore saved display/controller preferences.
 The optional photosensitivity filter uses console brightness (about 80%) and
 temporal feedback for PSI effects and Giygas. Visible enemies and text retain
 their original colors/brightness. Full console scene parity is unverified.
-Use 16:10 (Steam Deck) for 1280x800 and --fullscreen for desktop fullscreen.
+Use 16:10 (Steam Deck / Mac) for 1280x800 and --fullscreen for desktop fullscreen.
 --native-session N offers experimental native Continue for save slots 1-3;
 full native integration remains in progress. Machine snapshots/debug controls
 are unavailable in that route.
@@ -47,3 +51,11 @@ about 19-20% less median CPU time; this is not a whole-game FPS guarantee. Game
 updates still share the presentation thread, and uncapped output can remain
 uneven under load. Rendering resolution, CRT quality and game/audio speed remain
 unchanged. See PATCH-NOTES.md for scope and validation limits.
+
+VERSION 0.5 DISPLAY UPDATE
+MacBook Air 13/15 and MacBook Pro 14/16 panel proportions are available under
+F1 > Display > Widescreen on all platforms, including via --aspect
+macbook-air-13, macbook-air-15, macbook-pro-14 or macbook-pro-16. Window follows
+the actual drawable area; panel presets do not change display resolution.
+F1 > Debug > Experimental frame pacing is optional, saved, and off by default.
+It enables the adaptive presentation deadline guard at higher frame rates.

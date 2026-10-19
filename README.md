@@ -7,7 +7,7 @@ native desktop application for Linux and Windows. It includes keyboard and
 controller input, audio, persistent saves, a Settings window, and
 widescreen presentation with offscreen actor preloading.
 
-Version **0.4** is a development release. The default gameplay path runs each
+Version **0.5** is a development release. The default gameplay path runs each
 game's compiled program. An experimental `--native-session N` route continues
 a battery-save slot using the native engine; full native integration remains
 in progress. Both paths use assets imported from the player's own supported ROM.
@@ -15,7 +15,7 @@ ROMs and extracted gameplay asset packs are not included. You must supply your
 own copy before playing. The launcher and window icons derive from the provided
 Saturn artwork.
 
-[v0.4 patch notes](releases/Phase-Distorter-0.4-patch-notes.md) · [Screenshots](#screenshots) · [Installation](#installation) · [ROM setup](#first-launch-and-rom-setup) ·
+[v0.5 patch notes](releases/Phase-Distorter-0.5-patch-notes.md) · [Screenshots](#screenshots) · [Installation](#installation) · [ROM setup](#first-launch-and-rom-setup) ·
 [Controls](#controls-and-display) · [Building](#building-from-source) ·
 [Saves](#saves-settings-and-updating) · [Troubleshooting](#troubleshooting)
 
@@ -58,14 +58,19 @@ A sanctuary cave panorama, including the sparkling boss encounter marker.
 
 ### Downloaded a release ZIP?
 
-1. Choose the [Windows ZIP](releases/Phase-Distorter-0.4-windows-x86_64.zip) or
-   [Linux ZIP](releases/Phase-Distorter-0.4-linux-x86_64.zip) from `releases/`.
+1. Download the [Windows](https://github.com/TheRunaway5/Phase-Distorter/releases/download/0.5/Phase-Distorter-0.5-windows-x86_64.zip),
+   [Linux](https://github.com/TheRunaway5/Phase-Distorter/releases/download/0.5/Phase-Distorter-0.5-linux-x86_64.zip), or
+   [universal macOS](https://github.com/TheRunaway5/Phase-Distorter/releases/download/0.5/Phase-Distorter-0.5-macos-universal.zip) ZIP.
 2. Use **Extract All** or your archive manager to extract the entire application
    folder. **Do not run the application from inside the ZIP.** Keep its files
    together.
 3. On Windows, open **`Phase Distorter.exe`** and keep **`SDL2.dll`** beside it.
    On Linux, open **`Phase Distorter`** and keep **`lib/`** beside it. The supplied
-   Linux build needs **glibc 2.36 or newer** and desktop OpenGL.
+   Linux build needs **glibc 2.36 or newer** and desktop OpenGL. On macOS 11 or
+   newer, drag **Phase Distorter.app** to Applications. It includes Apple silicon
+   and Intel code plus SDL2, and uses the macOS OpenGL framework. The app is
+   ad-hoc signed, without Developer ID signing or notarization; the first launch
+   may require **Privacy & Security → Open Anyway**.
 4. If ROM setup appears, import your own supported EarthBound or Mother 2 ROM.
    A previous import in your external user-data directory can skip this step;
    no ROM or imported asset pack is included in the download.
@@ -80,12 +85,13 @@ Platform archives are stored only in **`releases/`**:
 
 | Package | Contents |
 | --- | --- |
-| `releases/Phase-Distorter-0.4-windows-x86_64.zip` | Native Windows application, SDL2 runtime, optional shortcut setup, instructions and licenses |
-| `releases/Phase-Distorter-0.4-linux-x86_64.zip` | Native Linux application with private C++ support, SDL2 runtime, optional menu setup, instructions and licenses |
+| `releases/Phase-Distorter-0.5-windows-x86_64.zip` | Native Windows application, SDL2 runtime, optional shortcut setup, instructions and licenses |
+| `releases/Phase-Distorter-0.5-linux-x86_64.zip` | Native Linux application with private C++ support, SDL2 runtime, optional menu setup, instructions and licenses |
+| `releases/Phase-Distorter-0.5-macos-universal.zip` | Universal macOS app for Apple silicon and Intel with SDL2, instructions and licenses |
 
 Each ZIP contains one fresh application folder:
-`Phase-Distorter-0.4-windows-x86_64/` or
-`Phase-Distorter-0.4-linux-x86_64/`. Extract the entire ZIP and open the native
+`Phase-Distorter-0.5-windows-x86_64/` or
+`Phase-Distorter-0.5-linux-x86_64/`. Extract the entire ZIP and open the native
 application inside that folder. These runnable packages
 contain the required application files but no ROMs, imported gameplay asset
 packs, saves, or source/build trees. Supply your own supported ROM on first
@@ -93,11 +99,11 @@ launch. Each ZIP includes `README.txt`, a file manifest and checksums;
 `releases/SHA256SUMS` records the archive hashes, including retained older versions.
 
 For the repository-style executable layout, download the
-[combined v0.4 launcher ZIP](releases/Phase-Distorter-0.4-launchers-x86_64.zip)
-or use the [versioned launcher folder](releases/Phase-Distorter-0.4-launchers-x86_64/README.txt).
-It includes both platforms, `launch.sh` / `launch.bat`, runtimes and shortcut
-setup. The canonical `launchers/` folder also contains the v0.4 binaries.
-Each v0.4 bundle includes `VERSION` and `PATCH-NOTES.md`.
+[combined v0.5 launcher ZIP](releases/Phase-Distorter-0.5-launchers-multiarch.zip)
+or use the [versioned launcher folder](releases/Phase-Distorter-0.5-launchers-multiarch/README.txt).
+It includes all three platforms, `launch.sh` / `launch.bat`, runtimes and shortcut
+setup; macOS users open the included `Phase Distorter.app`. The canonical `launchers/` folder also contains the v0.5 binaries.
+Each v0.5 bundle includes `VERSION` and `PATCH-NOTES.md`.
 
 ### Running from the source repository
 
@@ -463,6 +469,20 @@ The freshly built executable is available in both `build/cpp/eb_cpp` and
 `launchers/linux/bin/eb_cpp`. Other Linux distributions need the
 equivalent compiler, CMake, SDL2, and OpenGL development packages.
 
+### macOS universal build
+
+With Xcode command-line tools, CMake and Python 3 installed, run:
+
+```sh
+bash cpp/tools/build-macos.sh
+```
+
+This builds a pinned SDL2 runtime and the app for both `arm64` and `x86_64`,
+then creates an ad-hoc signed `build/macos-release/Phase Distorter.app` and a
+macOS release ZIP. It targets macOS 11 or later and uses native OpenGL.
+Run `bash cpp/tools/test-macos-release.sh` to exercise the extracted release.
+The GitHub macOS release workflow tests the same universal app on both CPU types.
+
 ### Linux release compatibility build
 
 Release maintainers use Debian 12's glibc 2.36 baseline, GCC 12, and the
@@ -584,12 +604,13 @@ cmake --build build --parallel 4
 
 ## Saves, settings, and updating
 
-Version 0.4 retains the existing `ebsrc/EarthBoundCpp` application-data location:
+Version 0.5 retains the existing `ebsrc/EarthBoundCpp` application-data location:
 
 | Platform | Default directory |
 | --- | --- |
 | Windows | `%APPDATA%\ebsrc\EarthBoundCpp\` |
 | Linux | `${XDG_DATA_HOME:-$HOME/.local/share}/ebsrc/EarthBoundCpp/` |
+| macOS | `~/Library/Application Support/ebsrc/EarthBoundCpp/` |
 
 These are the normal locations chosen by
 [SDL's user-data API](https://wiki.libsdl.org/SDL2/SDL_GetPrefPath); the program
@@ -622,7 +643,7 @@ mean the new directory or release ZIP contains game assets.
 | --- | --- |
 | Import rejects the ROM | Check its supported revision, size, and SHA-256 above. Patched ROMs are unsupported. |
 | The game or language does not match | Pass `--game earthbound` or `--game mother2` and use its matching asset pack. Each game requires its own import. |
-| Linux reports a missing `GLIBC_*` version | Use the v0.4 Linux ZIP (glibc 2.36 baseline), or build from source on that machine. The original v0.3 ZIP requires glibc 2.43. |
+| Linux reports a missing `GLIBC_*` version | Use the v0.5 Linux ZIP (glibc 2.36 baseline), or build from source on that machine. The original v0.3 ZIP requires glibc 2.43. |
 | Linux reports permission denied | Run the `chmod` command in the Linux installation section. |
 | Windows reports `SDL2.dll` missing | Restore the matching DLL beside the executable you are running. |
 | The window closes immediately | Run the native executable from a terminal or Command Prompt to read the error. |
@@ -692,8 +713,8 @@ in `launchers/linux/lib/`, maintainers can validate and recreate the whitelisted
 runnable packages using Python 3:
 
 ```sh
-python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.4-patch-notes.md --linux-static-cxx-runtime --include-launchers --check
-python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.4-patch-notes.md --linux-static-cxx-runtime --include-launchers
+python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --include-launchers --check
+python3 cpp/tools/package_release.py --patch-notes releases/Phase-Distorter-0.5-patch-notes.md --linux-static-cxx-runtime --include-launchers
 ```
 
 The packager writes versioned archives and the combined launcher snapshot to

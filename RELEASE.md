@@ -1,3 +1,35 @@
+# Phase Distorter — version 0.5
+
+[Download the release](https://github.com/TheRunaway5/Phase-Distorter/releases/tag/0.5).
+See [the patch notes](releases/Phase-Distorter-0.5-patch-notes.md).
+
+| Artifact | Layout |
+| --- | --- |
+| Linux x86-64 ZIP | glibc 2.36 baseline, SDL2, private static C++ support |
+| Windows x86-64 ZIP | Native application and SDL2.dll |
+| macOS universal ZIP | macOS 11+, Apple silicon and Intel app, private SDL2 |
+| Combined multiarch launcher ZIP | All three platforms, notices and launch scripts |
+
+The macOS app uses native OpenGL, is ad-hoc signed, and is not notarized.
+Build it with `bash cpp/tools/build-macos.sh`. Its workflow tests the same
+universal binaries on native Apple silicon and Intel runners. macOS OpenGL is
+[deprecated but available on Apple silicon](https://developer.apple.com/documentation/apple-silicon/porting-your-macos-apps-to-apple-silicon).
+
+Build and refresh Linux inside the documented Debian 12 compatibility environment,
+and Windows from its MinGW Release build. Package all three from finalized inputs:
+
+```sh
+python3 cpp/tools/package_release.py --version 0.5 \
+  --patch-notes releases/Phase-Distorter-0.5-patch-notes.md \
+  --linux-static-cxx-runtime --macos-app 'build/macos-release/Phase Distorter.app' \
+  --include-launchers
+```
+
+No game ROMs, imported packs, saves or personal preferences are included.
+Existing formats and application-data directories remain compatible.
+
+## Historical v0.4 release
+
 # Phase Distorter — version 0.4 release bundle
 
 Prepared 2026-10-10 from the current checkout, including the background and

@@ -48,7 +48,7 @@ ROM import view has no gameplay bar.
 The complete War Against Giygas intro card, including animated static, holds
 and flashes, uses its original centered 4:3 view. Coffee/tea backgrounds extend
 across the selected width while their captions remain centered.
-Use the 16:10 (Steam Deck) preset for 1280x800, and --fullscreen to start in
+Use the 16:10 (Steam Deck / Mac) preset for 1280x800, and --fullscreen to start in
 desktop fullscreen mode.
 The Mother 2 logo screen extends its background into widescreen margins while
 keeping the original logo and copyright centered.
@@ -141,3 +141,11 @@ about 19-20% less median CPU time; this is not a whole-game FPS guarantee. Game
 updates still share the presentation thread, and uncapped output can remain
 uneven under load. Rendering resolution, CRT quality and game/audio speed remain
 unchanged. See PATCH-NOTES.md for scope and validation limits.
+
+VERSION 0.5 DISPLAY UPDATE
+MacBook Air 13/15 and MacBook Pro 14/16 panel proportions are available under
+F1 > Display > Widescreen on all platforms, including via --aspect
+macbook-air-13, macbook-air-15, macbook-pro-14 or macbook-pro-16. Window follows
+the actual drawable area; panel presets do not change display resolution.
+F1 > Debug > Experimental frame pacing is optional, saved, and off by default.
+It enables the adaptive presentation deadline guard at higher frame rates.

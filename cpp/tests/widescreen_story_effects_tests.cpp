@@ -355,9 +355,10 @@ struct Canvas { std::string name; unsigned width; };
 std::vector<Canvas> coffee_canvases() {
     std::vector<Canvas> result;
     eb::DisplaySettings settings; settings.widescreen = true;
-    const std::array<eb::AspectRatio, 7> presets{eb::AspectRatio::Native, eb::AspectRatio::FourThree,
+    const std::array<eb::AspectRatio, 11> presets{eb::AspectRatio::Native, eb::AspectRatio::FourThree,
         eb::AspectRatio::SixteenTen, eb::AspectRatio::SixteenNine, eb::AspectRatio::TwentyOneNine,
-        eb::AspectRatio::Window, eb::AspectRatio::Custom};
+        eb::AspectRatio::Window, eb::AspectRatio::Custom, eb::AspectRatio::MacBookAir13,
+        eb::AspectRatio::MacBookAir15, eb::AspectRatio::MacBookPro14, eb::AspectRatio::MacBookPro16};
     for (unsigned i = 0; i < presets.size(); ++i) {
         settings.aspect = presets[i]; result.push_back({"preset" + std::to_string(i), unsigned(settings.render_width(1280, 720))});
     }

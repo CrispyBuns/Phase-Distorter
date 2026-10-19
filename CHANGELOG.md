@@ -1,3 +1,15 @@
+# Phase Distorter 0.5 — 2026-10-19
+
+See [the v0.5 patch notes](releases/Phase-Distorter-0.5-patch-notes.md).
+
+- Add a universal macOS app with private SDL2 and native OpenGL.
+- Add MacBook Air 13/15 and Pro 14/16 aspect presets on every platform while
+  preserving saved identities for existing presets.
+- Merge PR #9 with native-grid interpolation and an optional adaptive deadline
+  guard under Debug > Experimental frame pacing, default off.
+- Refresh Linux and Windows launchers and provide all three platform packages,
+  a combined bundle, dependency notices, manifests and integrity records.
+
 # Phase Distorter 0.4 — 2026-10-10
 
 Changes since the packaged v0.3.1 build are in

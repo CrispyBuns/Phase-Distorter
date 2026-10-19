@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import stat
+import struct
 import sys
 import tempfile
 import unittest
@@ -68,6 +69,32 @@ class LauncherReleaseTests(unittest.TestCase):
         self.packages["windows"].append(release.Entry("licenses/notice.txt", b"Other license"))
         with self.assertRaisesRegex(ValueError, "Conflicting"):
             release.launcher_entries(self.packages, "0.2")
+
+    def test_macos_payload_and_architecture_survive_combining(self):
+        self.packages["macos"] = release.finalize_entries([
+            release.Entry("VERSION", b"0.2\n"),
+            release.Entry("Phase Distorter.app/Contents/MacOS/Phase Distorter", b"universal", 0o755),
+            release.Entry("Phase Distorter.app/Contents/_CodeSignature/CodeResources", b"seal")],
+            "macos", "0.2", "arm64+x86_64")
+        entries = {entry.name: entry for entry in release.launcher_entries(self.packages, "0.2")}
+        manifest = json.loads(entries["MANIFEST.json"].data)
+        self.assertEqual(manifest["platform"], "linux+macos+windows")
+        self.assertEqual(manifest["architecture"], "arm64+x86_64")
+        self.assertEqual(entries["Phase Distorter.app/Contents/MacOS/Phase Distorter"].mode, 0o755)
+        self.assertEqual(entries["Phase Distorter.app/Contents/_CodeSignature/CodeResources"].data, b"seal")
+
+    def test_macos_rejects_wrong_architecture_and_truncated_slice(self):
+        data = bytearray(160)
+        struct.pack_into(">II", data, 0, 0xcafebabe, 2)
+        for i, cpu in enumerate((0x01000007, 0x0100000c)):
+            struct.pack_into(">IIIII", data, 8 + i * 20, cpu, 0, 64 + i * 48, 48, 4)
+            data[64 + i * 48:68 + i * 48] = b"\xcf\xfa\xed\xfe"
+        release.require_universal_macho(release.Entry("universal", bytes(data)))
+        with self.assertRaisesRegex(ValueError, "slice bounds"):
+            release.require_universal_macho(release.Entry("truncated", bytes(data[:-1])))
+        struct.pack_into(">I", data, 28, 0x01000007)
+        with self.assertRaisesRegex(ValueError, "Intel and Apple silicon"):
+            release.require_universal_macho(release.Entry("wrong CPU", bytes(data)))
 
     def test_folder_is_repeatable_and_preserves_modified_snapshot(self):
         entries = release.launcher_entries(self.packages, "0.2")
