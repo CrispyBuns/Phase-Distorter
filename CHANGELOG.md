@@ -3,6 +3,8 @@
 See [the v0.5 patch notes](releases/Phase-Distorter-0.5-patch-notes.md).
 
 - Add a universal macOS app with private SDL2 and native OpenGL.
+- Fix CRT RGB mask stripe selection on Apple OpenGL without changing the
+  intended mask pattern on other platforms.
 - Add MacBook Air 13/15 and Pro 14/16 aspect presets on every platform while
   preserving saved identities for existing presets.
 - Merge PR #9 with native-grid interpolation and an optional adaptive deadline

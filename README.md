@@ -100,7 +100,7 @@ launch. Each ZIP includes `README.txt`, a file manifest and checksums;
 
 For the repository-style executable layout, download the
 [combined v0.5 launcher ZIP](releases/Phase-Distorter-0.5-launchers-multiarch.zip)
-or use the [versioned launcher folder](releases/Phase-Distorter-0.5-launchers-multiarch/README.txt).
+and extract its versioned application folder.
 It includes all three platforms, `launch.sh` / `launch.bat`, runtimes and shortcut
 setup; macOS users open the included `Phase Distorter.app`. The canonical `launchers/` folder also contains the v0.5 binaries.
 Each v0.5 bundle includes `VERSION` and `PATCH-NOTES.md`.

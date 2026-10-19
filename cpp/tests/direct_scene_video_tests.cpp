@@ -399,10 +399,6 @@ int main() {
         require(channel(500, 10, 0) > channel(500, 10, 2) &&
                 channel(500, 650, 2) > channel(500, 650, 0), "CRT native image orientation changed");
         require(channel(500, 319, 0) != channel(500, 320, 0), "CRT scanline pattern missing");
-        std::cout << "[DEBUG-MAC-CRT] row320:";
-        for (int x = 498; x < 507; ++x)
-            std::cout << ' ' << x << '=' << int(channel(x,320,0)) << ',' << int(channel(x,320,1)) << ',' << int(channel(x,320,2));
-        std::cout << " plain=" << int(plain.rgb[(320*plain.width+501)*3]) << '\n';
         for (int stripe = 0; stripe < 3; ++stripe)
             require(channel(501 + stripe, 320, stripe) < channel(501 + stripe, 320, (stripe + 1) % 3) &&
                         channel(501 + stripe, 320, stripe) < channel(501 + stripe, 320, (stripe + 2) % 3),
