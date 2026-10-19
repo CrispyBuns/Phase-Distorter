@@ -5,7 +5,7 @@ on:
       runner:
         description: Native Mac builder (use the alternate pool if one is busy)
         type: choice
-        default: macos-15
+        default: macos-14
         options:
           - macos-15
           - macos-15-intel
@@ -46,7 +46,7 @@ jobs:
   other_architecture:
     needs: universal
     if: ${{ always() && (needs.universal.result == 'success' || inputs.verify_artifact_run != '') }}
-    runs-on: ${{ inputs.verification_runner || (inputs.runner == 'macos-15-intel' && 'macos-15' || 'macos-15-intel') }}
+    runs-on: ${{ inputs.verification_runner || (inputs.runner == 'macos-15-intel' && 'macos-14' || 'macos-15-intel') }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

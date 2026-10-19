@@ -401,10 +401,12 @@ int main() {
         require(channel(500, 319, 0) != channel(500, 320, 0), "CRT scanline pattern missing");
         std::cout << "[DEBUG-MAC-CRT] row320:";
         for (int x = 498; x < 507; ++x)
-            std::cout << ' ' << x << '=' << channel(x,320,0) << ',' << channel(x,320,1) << ',' << channel(x,320,2);
+            std::cout << ' ' << x << '=' << int(channel(x,320,0)) << ',' << int(channel(x,320,1)) << ',' << int(channel(x,320,2));
         std::cout << " plain=" << int(plain.rgb[(320*plain.width+501)*3]) << '\n';
-        require(channel(501, 320, 0) != channel(502, 320, 0) ||
-                channel(501, 320, 1) != channel(502, 320, 1), "CRT phosphor mask missing");
+        for (int stripe = 0; stripe < 3; ++stripe)
+            require(channel(501 + stripe, 320, stripe) < channel(501 + stripe, 320, (stripe + 1) % 3) &&
+                        channel(501 + stripe, 320, stripe) < channel(501 + stripe, 320, (stripe + 2) % 3),
+                    "CRT phosphor mask is missing a primary-color stripe");
         present.draw(pixels, 398, 224, 1194, 672);
         require(present.capture().rgb == plain.rgb, "Disabling CRT failed to restore the native image");
         last.clear();

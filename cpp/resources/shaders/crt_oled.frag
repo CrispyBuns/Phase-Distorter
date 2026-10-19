@@ -71,7 +71,10 @@ void main() {
     // CRTS' brighter aperture-grille mask: a modest full-pixel RGB pattern
     // independent of the panel's physical RGB, WRGB or QD-OLED subpixel layout.
     float dark = 1.0 - 0.35 * strength;
-    float stripe = mod(floor(gl_FragCoord.x), 3.0);
+    // Keep the modulo result away from branch thresholds. Apple's software
+    // GL can evaluate an integer remainder of 1 as slightly less than 1,
+    // otherwise selecting red twice and omitting the green mask stripe.
+    float stripe = mod(floor(gl_FragCoord.x) + 0.5, 3.0);
     vec3 mask = vec3(1.0);
     if (stripe < 1.0) mask.r = dark;
     else if (stripe < 2.0) mask.g = dark;
