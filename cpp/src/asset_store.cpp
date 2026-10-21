@@ -1,8 +1,9 @@
 #include "eb/asset_store.hpp"
 
 // The distributable keeps translated code; the user's local pack supplies the
-// remaining ROM data. Every load reconstructs and verifies the same full image,
-// so a pack cannot silently mix one game's data with another game's code.
+// remaining ROM data. Packs are bound to the compiled profile and verify all
+// bytes outside declared asset ranges, allowing explicitly approved asset-only
+// variants without allowing a changed program image.
 
 #include <algorithm>
 #include <array>
@@ -26,6 +27,26 @@ namespace {
 // by (offset, size, payload) records. Integers are explicitly little-endian.
 constexpr std::array<std::uint8_t, 8> magic{'E','B','C','D','A','T','A','1'};
 constexpr std::size_t header_size = 8 + 4 + 4 + 64;
+
+constexpr std::string_view earthbound_us_sha256 = "a8fe2226728002786d68c27ddddb0f90a894db52e4dfe268fdf72a68cae5f02e";
+constexpr std::string_view earthbound_us_song_replacement_sha256 = "fc1972a3bd85aa39777b7a3ed2eb290900cfa332534d0f0d816190a3f6f79687";
+
+bool approved_digest(const AssetLayout& layout, std::string_view digest) {
+    return digest == layout.rom_sha256 ||
+           (layout.rom_sha256 == earthbound_us_sha256 &&
+            digest == earthbound_us_song_replacement_sha256);
+}
+
+bool matches_compiled_code(std::span<const std::uint8_t> image, const AssetLayout& layout) {
+    if (image.size() != layout.code_image.size()) return false;
+    std::size_t cursor = 0;
+    for (const auto& range : layout.ranges) {
+        if (!std::equal(image.begin() + cursor, image.begin() + range.offset,
+                        layout.code_image.begin() + cursor)) return false;
+        cursor = std::size_t(range.offset) + range.size;
+    }
+    return std::equal(image.begin() + cursor, image.end(), layout.code_image.begin() + cursor);
+}
 
 std::size_t payload_size(const AssetLayout& layout) {
     // Validate generated metadata before it is used for allocation or indexing.
@@ -89,7 +110,7 @@ std::vector<std::uint8_t> decode(std::span<const std::uint8_t> packed, const Ass
         std::copy_n(packed.begin() + cursor, range.size, image.begin() + range.offset);
         cursor += range.size;
     }
-    if (sha256(image) != layout.rom_sha256)
+    if (!approved_digest(layout, sha256(image)))
         throw std::runtime_error("Asset pack data is damaged or does not match this build. Import your ROM again.");
     return image;
 }
@@ -189,9 +210,10 @@ void import_assets(const std::filesystem::path& rom_path, const std::filesystem:
     // Copier headers are recognized by exact excess length, not guessed from
     // contents. Hashing always covers the canonical headerless image.
     if (image.size() == layout.code_image.size() + 512) image = image.subspan(512);
-    if (image.size() != layout.code_image.size() || sha256(image) != layout.rom_sha256)
-        throw std::runtime_error("This file does not match the selected game version. "
-                                 "Choose an unmodified .sfc or .smc dump of your own copy "
+    if (image.size() != layout.code_image.size() ||
+        !approved_digest(layout, sha256(image)) || !matches_compiled_code(image, layout))
+        throw std::runtime_error("This file does not match the selected supported game version. "
+                                 "Choose a supported .sfc or .smc dump of your own copy "
                                  "(a 512-byte copier header is accepted).");
     std::vector<std::uint8_t> packed(magic.begin(), magic.end());
     // Pack only asset ranges; the executable already contains the code template.
@@ -221,7 +243,9 @@ const AssetProfile& identify_rom(const std::filesystem::path& path, std::span<co
     for (const auto& profile : profiles) {
         std::span<const std::uint8_t> image(bytes);
         if (image.size() == profile.layout.code_image.size() + 512) image = image.subspan(512);
-        if (image.size() == profile.layout.code_image.size() && sha256(image) == profile.layout.rom_sha256)
+        if (image.size() == profile.layout.code_image.size() &&
+            approved_digest(profile.layout, sha256(image)) &&
+            matches_compiled_code(image, profile.layout))
             return profile;
     }
     throw std::runtime_error("Unsupported ROM. Select an unmodified US EarthBound or Japanese Mother 2 "
