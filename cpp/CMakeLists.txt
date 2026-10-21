@@ -5,6 +5,28 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Optional tuning for the Allwinner H700 / Cortex-A53 in the Anbernic
+# RG35XX-H. Keep this OFF for portable desktop builds and upstream defaults.
+option(EB_TARGET_CORTEX_A53 "Optimize the build for ARMv8-A Cortex-A53 handhelds" OFF)
+if(EB_TARGET_CORTEX_A53)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR "EB_TARGET_CORTEX_A53 requires GCC or Clang")
+    endif()
+    add_compile_options(
+        -O3
+        -pipe
+        -mcpu=cortex-a53
+        -mtune=cortex-a53
+        -ffunction-sections
+        -fdata-sections
+    )
+    add_link_options(
+        -Wl,--as-needed
+        -Wl,--gc-sections
+    )
+    message(STATUS "Cortex-A53 tuning enabled (RG35XX-H / H700)")
+endif()
+
 # The same implementation supports two build contexts: the standalone release
 # supplies EB_PREGENERATED_DIR, while the original development tree can regenerate
 # instruction sources. Only that latter path needs Python plus assembler tools.
