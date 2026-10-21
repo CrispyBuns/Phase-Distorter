@@ -217,9 +217,12 @@ Hashes below refer to the image without that header.
 | --- | --- | --- |
 | EarthBound (US) | English | `a8fe2226728002786d68c27ddddf0b90a894db52e4dfe268fdf72a68cae5f02e` |
 | Mother 2 (Japan) | Japanese | `1f8cfd13177d86b0eb2c8adcf9e1a4f0ec8966fa1583072b65a1b1c0e7961a5d` |
+| EarthBound (US, approved song-replacement variant) | English | `fc1972a3bd85aa39777b7a3ed2eb290900cfa332534d0f0d816190a3f6f79687` |
 
-Modified ROMs, translation patches, prototypes, and other revisions are not
-supported by this release. ROM download links and game assets are not provided.
+Other modified ROMs, translation patches, prototypes, and revisions are not supported.
+The listed song-replacement variant is accepted only when its non-asset/code bytes match
+the compiled EarthBound profile; import still verifies the complete approved image hash.
+ROM download links and game assets are not provided.
 
 Import is also available from the command line. For example, on Linux:
 
