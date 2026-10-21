@@ -72,6 +72,7 @@ inline const char *controller_button_name(int button, bool nintendo_layout) {
         return "D-pad Left";
     case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
         return "D-pad Right";
+#if SDL_VERSION_ATLEAST(2, 0, 14)
     case SDL_CONTROLLER_BUTTON_MISC1:
         return "Capture / Misc";
     case SDL_CONTROLLER_BUTTON_PADDLE1:
@@ -84,6 +85,7 @@ inline const char *controller_button_name(int button, bool nintendo_layout) {
         return "Paddle 4";
     case SDL_CONTROLLER_BUTTON_TOUCHPAD:
         return "Touchpad";
+#endif
     default:
         return "Unassigned";
     }
