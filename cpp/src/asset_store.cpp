@@ -30,11 +30,13 @@ constexpr std::size_t header_size = 8 + 4 + 4 + 64;
 
 constexpr std::string_view earthbound_us_sha256 = "a8fe2226728002786d68c27ddddb0f90a894db52e4dfe268fdf72a68cae5f02e";
 constexpr std::string_view earthbound_us_song_replacement_sha256 = "fc1972a3bd85aa39777b7a3ed2eb290900cfa332534d0f0d816190a3f6f79687";
+constexpr std::string_view earthbound_us_ebmused_sha256 = "a0adf15f49e32246faf0b5c74f04422a5c266ff03f6e865e6b924c18833dbb26";
 
 bool approved_digest(const AssetLayout& layout, std::string_view digest) {
     return digest == layout.rom_sha256 ||
            (layout.rom_sha256 == earthbound_us_sha256 &&
-            digest == earthbound_us_song_replacement_sha256);
+            digest == earthbound_us_song_replacement_sha256 ||
+            digest == earthbound_us_ebmused_sha256);
 }
 
 bool matches_compiled_code(std::span<const std::uint8_t> image, const AssetLayout& layout) {
