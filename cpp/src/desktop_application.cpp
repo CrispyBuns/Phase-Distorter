@@ -17,6 +17,8 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
+#include <vector>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -29,11 +31,62 @@ namespace {
 constexpr int width = DisplaySettings::native_width;
 constexpr int height = DisplaySettings::native_height;
 
+// Search the application/repository root for a user-supplied ROM. ROM files
+// are never bundled; this only imports files the user has placed in ROMs/.
+// Both common folder capitalizations are accepted for Linux handhelds.
+std::optional<std::filesystem::path> find_root_rom(GameVersion wanted) {
+    std::vector<std::filesystem::path> roots;
+    std::error_code ec;
+    const auto cwd = std::filesystem::current_path(ec);
+    if (!ec) {
+        roots.push_back(cwd / "ROMs");
+        roots.push_back(cwd / "roms");
+        roots.push_back(cwd / "ROM");
+        roots.push_back(cwd / "rom");
+    }
+    if (char *base = SDL_GetBasePath()) {
+        const std::filesystem::path executable_dir(base);
+        SDL_free(base);
+        roots.push_back(executable_dir / "ROMs");
+        roots.push_back(executable_dir / "roms");
+        roots.push_back(executable_dir / "ROM");
+        roots.push_back(executable_dir / "rom");
+    }
+    for (const auto &root : roots) {
+        ec.clear();
+        if (!std::filesystem::is_directory(root, ec)) continue;
+        for (std::filesystem::directory_iterator it(root, ec), end; !ec && it != end; it.increment(ec)) {
+            if (ec || !it->is_regular_file(ec)) continue;
+            const auto ext = it->path().extension().string();
+            if (ext != ".smc" && ext != ".sfc" && ext != ".SMC" && ext != ".SFC") continue;
+            try {
+                const auto &profile = identify_rom(it->path(), asset_profiles());
+                if (profile.version == wanted) {
+                    std::cout << "Found supported ROM in " << root.string() << ": "
+                              << it->path().filename().string() << '\n';
+                    return it->path();
+                }
+            } catch (const std::exception &error) {
+                std::cout << "Skipping ROM candidate " << it->path().string()
+                          << ": " << error.what() << '\n';
+            }
+        }
+    }
+    return std::nullopt;
+}
+
 // Compose one interactive/headless run. Module owners are destroyed before a
 // requested game switch, so settings may persist while machine state cannot.
 int run_session(LaunchOptions options, std::optional<PendingGameSwitch> &next) {
     try {
         SDL_SetMainReady();
+        // Keep startup/import diagnostics beside the root-level ROMs folder.
+        static std::ofstream log_file("log.txt", std::ios::out | std::ios::app);
+        if (log_file) {
+            std::cout.rdbuf(log_file.rdbuf());
+            std::cerr.rdbuf(log_file.rdbuf());
+            std::cout << "\n--- Phase Distorter startup ---\n";
+        }
         char *directory = SDL_GetPrefPath("ebsrc", "EarthBoundCpp");
         if (!directory)
             throw std::runtime_error(std::string("Cannot find application data directory: ") +
@@ -53,6 +106,11 @@ int run_session(LaunchOptions options, std::optional<PendingGameSwitch> &next) {
             const char *environment = options.default_assets_only ? nullptr : std::getenv("EB_ASSET_PACK");
             default_asset_path = !(environment && *environment);
             options.assets = default_asset_path ? preferences + game_basename(game) + ".ebpak" : environment;
+        }
+        if (options.import_rom.empty() && default_asset_path &&
+            !std::filesystem::exists(native_path(options.assets))) {
+            if (const auto candidate = find_root_rom(game))
+                options.import_rom = candidate->string();
         }
         if (!options.import_rom.empty()) {
             // Identify by contents first, then select the default output filename.
