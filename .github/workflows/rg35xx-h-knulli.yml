@@ -86,9 +86,6 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           install -m 0755 build/cpp/eb_cpp dist/eb_cpp
-          cp README.md dist/README.md
-          printf 'Build mode: %s\nArchitecture: aarch64 (Cortex-A53)\nGraphics: SDL2 + OpenGL/EGL system libraries\n' \
-            '${{ inputs.build_mode }}' > dist/BUILD-INFO.txt
 
       - name: Upload handheld binary
         uses: actions/upload-artifact@v4
