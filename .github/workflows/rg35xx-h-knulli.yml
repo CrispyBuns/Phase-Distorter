@@ -1,0 +1,96 @@
+name: Phase Distorter RG35XX-H KNULLI build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: Build configuration
+        required: true
+        type: choice
+        default: release
+        options:
+          - release
+          - pgo-generate
+          - pgo-use
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # GitHub-hosted ARM64 runner, matching the RG35XX-H's aarch64 userspace.
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config python3 \
+            libsdl2-dev libgl-dev libegl-dev libgles2-mesa-dev
+
+      - name: Verify generated source snapshot
+        run: |
+          test -f generated/program_sources.cmake
+          test -f generated/game_runtime_sources.cmake
+
+      - name: Configure
+        shell: bash
+        env:
+          BUILD_MODE: ${{ inputs.build_mode }}
+        run: |
+          set -euo pipefail
+          flags="-O3 -mcpu=cortex-a53 -mtune=cortex-a53 -ffunction-sections -fdata-sections"
+          link_flags="-Wl,--gc-sections"
+          case "$BUILD_MODE" in
+            release)
+              ;;
+            pgo-generate)
+              mkdir -p debug
+              flags="$flags -fprofile-generate=$GITHUB_WORKSPACE/debug"
+              link_flags="$link_flags -fprofile-generate=$GITHUB_WORKSPACE/debug"
+              ;;
+            pgo-use)
+              if ! find debug -type f -name '*.gcda' -print -quit | grep -q .; then
+                echo "::error::pgo-use selected, but no debug/*.gcda profiles are committed."
+                exit 1
+              fi
+              flags="$flags -fprofile-use=$GITHUB_WORKSPACE/debug -fprofile-correction"
+              link_flags="$link_flags -fprofile-use=$GITHUB_WORKSPACE/debug -fprofile-correction"
+              ;;
+            *)
+              echo "::error::Unknown build mode: $BUILD_MODE"
+              exit 1
+              ;;
+          esac
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=20 \
+            -DEB_TARGET_CORTEX_A53=ON \
+            -DEB_BUILD_FRONTEND=ON \
+            -DEB_BUILD_TESTS=OFF \
+            -DEB_PREGENERATED_DIR="$GITHUB_WORKSPACE/generated" \
+            -DCMAKE_CXX_FLAGS="$flags" \
+            -DCMAKE_EXE_LINKER_FLAGS="$link_flags"
+
+      - name: Compile Phase Distorter
+        run: cmake --build build --target eb_cpp --parallel 2
+
+      - name: Stage build output
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          install -m 0755 build/cpp/eb_cpp dist/eb_cpp
+
+      - name: Upload handheld binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-distorter-rg35xx-h-knulli-${{ inputs.build_mode }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
