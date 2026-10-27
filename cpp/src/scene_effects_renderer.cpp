@@ -16,9 +16,11 @@ template<class T> T proc(const char* name) {
     if (!value) throw std::runtime_error(std::string("Scene effects require OpenGL 2.1/FBO: ") + name);
     return value;
 }
-constexpr const char* vertex_source = R"GLSL(#version 120
+constexpr const char* vertex_source = R"GLSL(
+attribute vec3 Position;
+attribute vec2 TexCoord;
 varying vec2 UV;
-void main() { gl_Position = ftransform(); UV = gl_MultiTexCoord0.xy; }
+void main() { gl_Position = vec4(Position, 1.0); UV = TexCoord; }
 )GLSL";
 const std::string window_source = R"GLSL(
 uniform sampler2D Windows;
@@ -34,7 +36,7 @@ bool windowMask() {
     return Invert ? inside : !inside;
 }
 )GLSL";
-const std::string layer_source = std::string("#version 120\n") + window_source + R"GLSL(
+const std::string layer_source = window_source + R"GLSL(
 uniform sampler2D Atlas;
 uniform bool Masked;
 uniform float PixelAlpha;
@@ -47,7 +49,7 @@ void main() {
     gl_FragColor = vec4(pixel.rgb, PixelAlpha);
 }
 )GLSL";
-const std::string resolve_source = std::string("#version 120\n") + window_source + R"GLSL(
+const std::string resolve_source = window_source + R"GLSL(
 uniform sampler2D MainImage, SubImage;
 uniform bool Masked, UseSubscreen, Subtract, Half;
 uniform int Clip, Prevent;
@@ -83,6 +85,11 @@ void texture_parameters() {
 }
 struct SceneEffectsRenderer::Impl {
 #define GL_PROC(type, name) type name = proc<type>("gl" #name)
+    GL_PROC(PFNGLBINDBUFFERPROC, BindBuffer);
+    GL_PROC(PFNGLBINDATTRIBLOCATIONPROC, BindAttribLocation);
+    GL_PROC(PFNGLVERTEXATTRIBPOINTERPROC, VertexAttribPointer);
+    GL_PROC(PFNGLENABLEVERTEXATTRIBARRAYPROC, EnableVertexAttribArray);
+    GL_PROC(PFNGLDISABLEVERTEXATTRIBARRAYPROC, DisableVertexAttribArray);
     GL_PROC(PFNGLCREATESHADERPROC, CreateShader);
     GL_PROC(PFNGLSHADERSOURCEPROC, ShaderSource);
     GL_PROC(PFNGLCOMPILESHADERPROC, CompileShader);
@@ -139,12 +146,18 @@ struct SceneEffectsRenderer::Impl {
         }
         return id;
     }
+    bool gles{};
+    std::string shader_header;
     Program program(const std::string& fragment) {
-        const auto frag = shader(GL_FRAGMENT_SHADER, fragment.c_str());
+        const std::string fragment_source = shader_header + fragment;
+        const std::string vertex_text = shader_header + vertex_source;
+        const auto frag = shader(GL_FRAGMENT_SHADER, fragment_source.c_str());
         GLuint vert{};
-        try { vert = shader(GL_VERTEX_SHADER, vertex_source); }
+        try { vert = shader(GL_VERTEX_SHADER, vertex_text.c_str()); }
         catch (...) { DeleteShader(frag); throw; }
         Program p; p.id = CreateProgram(); AttachShader(p.id, vert); AttachShader(p.id, frag);
+        BindAttribLocation(p.id, 0, "Position");
+        BindAttribLocation(p.id, 1, "TexCoord");
         LinkProgram(p.id); DeleteShader(vert); DeleteShader(frag);
         GLint ok{}; GetProgramiv(p.id, GL_LINK_STATUS, &ok);
         if (!ok) {
@@ -159,6 +172,9 @@ struct SceneEffectsRenderer::Impl {
         return p;
     }
     void initialize() {
+        const auto* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+        gles = version && std::string(version).find("OpenGL ES") != std::string::npos;
+        shader_header = gles ? "#version 100\nprecision mediump float;\n" : "#version 120\n";
         layer = program(layer_source); resolve = program(resolve_source);
         GenFramebuffersEXT(1, &framebuffer); GenRenderbuffersEXT(1, &depth_stencil);
         glGenTextures(2, images); glGenTextures(1, &windows);
@@ -284,10 +300,16 @@ void SceneEffectsRenderer::draw(const DirectScenePicture& picture, unsigned atla
         uniform("Clip", int(effect.clip)); uniform("Prevent", int(effect.prevent));
         gl.Uniform3f(gl.GetUniformLocation(gl.resolve.id, "Fixed"), effect.fixed[0], effect.fixed[1], effect.fixed[2]);
         gl.Uniform1f(gl.GetUniformLocation(gl.resolve.id, "Brightness"), effect.brightness);
-        glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(0, 0); glVertex2f(-1, -1); glTexCoord2f(1, 0); glVertex2f(1, -1);
-        glTexCoord2f(0, 1); glVertex2f(-1, 1); glTexCoord2f(1, 1); glVertex2f(1, 1);
-        glEnd();
+        const GLfloat fullscreen_vertices[] = {
+            -1, -1, 0, 0,  1, -1, 1, 0,
+            -1,  1, 0, 1,  1,  1, 1, 1
+        };
+        gl.BindBuffer(GL_ARRAY_BUFFER, 0);
+        gl.EnableVertexAttribArray(0); gl.EnableVertexAttribArray(1);
+        gl.VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), fullscreen_vertices);
+        gl.VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), fullscreen_vertices + 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        gl.DisableVertexAttribArray(1); gl.DisableVertexAttribArray(0);
         if (glGetError() != GL_NO_ERROR) throw std::runtime_error("OpenGL scene effect composition failed");
     } catch (...) { gl.cleanup(viewport); throw; }
     gl.cleanup(viewport);
