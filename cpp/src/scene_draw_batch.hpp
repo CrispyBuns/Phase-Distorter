@@ -15,19 +15,21 @@ namespace eb {
 class SceneDrawBatch {
 public:
     explicit SceneDrawBatch(std::vector<float>& vertices) : vertices_(vertices) {
-        const auto bind_buffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(SDL_GL_GetProcAddress("glBindBuffer"));
-        const auto client_texture = reinterpret_cast<PFNGLCLIENTACTIVETEXTUREARBPROC>(SDL_GL_GetProcAddress("glClientActiveTexture"));
-        if (!bind_buffer || !client_texture)
-            throw std::runtime_error("Scene batching requires OpenGL 2.1 client arrays");
+        bind_buffer_ = reinterpret_cast<PFNGLBINDBUFFERPROC>(SDL_GL_GetProcAddress("glBindBuffer"));
+        vertex_attrib_pointer_ = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(SDL_GL_GetProcAddress("glVertexAttribPointer"));
+        enable_vertex_attrib_array_ = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(SDL_GL_GetProcAddress("glEnableVertexAttribArray"));
+        disable_vertex_attrib_array_ = reinterpret_cast<PFNGLDISABLEVERTEXATTRIBARRAYPROC>(SDL_GL_GetProcAddress("glDisableVertexAttribArray"));
+        if (!bind_buffer_ || !vertex_attrib_pointer_ || !enable_vertex_attrib_array_ || !disable_vertex_attrib_array_)
+            throw std::runtime_error("Scene batching requires programmable vertex attributes");
         vertices_.clear();
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-        bind_buffer(GL_ARRAY_BUFFER, 0);
-        client_texture(GL_TEXTURE0);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
+        bind_buffer_(GL_ARRAY_BUFFER, 0);
+        enable_vertex_attrib_array_(0);
+        enable_vertex_attrib_array_(1);
     }
-    ~SceneDrawBatch() { glPopClientAttrib(); }
+    ~SceneDrawBatch() {
+        disable_vertex_attrib_array_(1);
+        disable_vertex_attrib_array_(0);
+    }
     SceneDrawBatch(const SceneDrawBatch&) = delete;
     SceneDrawBatch& operator=(const SceneDrawBatch&) = delete;
 
@@ -48,12 +50,16 @@ public:
     }
     void flush() {
         if (vertices_.empty()) return;
-        glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), vertices_.data());
-        glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), vertices_.data() + 3);
+        vertex_attrib_pointer_(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), vertices_.data());
+        vertex_attrib_pointer_(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), vertices_.data() + 3);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices_.size() / 5));
         vertices_.clear();
     }
 private:
+    PFNGLBINDBUFFERPROC bind_buffer_{};
+    PFNGLVERTEXATTRIBPOINTERPROC vertex_attrib_pointer_{};
+    PFNGLENABLEVERTEXATTRIBARRAYPROC enable_vertex_attrib_array_{};
+    PFNGLDISABLEVERTEXATTRIBARRAYPROC disable_vertex_attrib_array_{};
     std::vector<float>& vertices_;
 };
 } // namespace eb
