@@ -4,6 +4,7 @@
 #include <SDL_opengl.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -173,7 +174,9 @@ struct SceneEffectsRenderer::Impl {
     }
     void initialize() {
         const auto* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-        gles = version && std::string(version).find("OpenGL ES") != std::string::npos;
+        const char* libgl_es = std::getenv("LIBGL_ES");
+        gles = (libgl_es && libgl_es[0] != '\\0' && std::string(libgl_es) != "0") ||
+               (version && std::string(version).find("OpenGL ES") != std::string::npos);
         shader_header = gles ? "#version 100\nprecision mediump float;\n" : "#version 120\n";
         layer = program(layer_source); resolve = program(resolve_source);
         GenFramebuffersEXT(1, &framebuffer); GenRenderbuffersEXT(1, &depth_stencil);
