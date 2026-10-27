@@ -11,9 +11,14 @@
 
 namespace eb {
 namespace {
-template<class T> T proc(const char* name) {
+template<class T> T proc(const char* name, const char* fallback = nullptr) {
     auto value = reinterpret_cast<T>(SDL_GL_GetProcAddress(name));
-    if (!value) throw std::runtime_error(std::string("Scene effects require OpenGL 2.1/FBO: ") + name);
+    if (!value && fallback) value = reinterpret_cast<T>(SDL_GL_GetProcAddress(fallback));
+    if (!value) {
+        std::string message = std::string("Scene effects require OpenGL 2.1/FBO: ") + name;
+        if (fallback) message += std::string(" (fallback: ") + fallback + ")";
+        throw std::runtime_error(message);
+    }
     return value;
 }
 constexpr const char* vertex_source = R"GLSL(#version 120
@@ -83,6 +88,7 @@ void texture_parameters() {
 }
 struct SceneEffectsRenderer::Impl {
 #define GL_PROC(type, name) type name = proc<type>("gl" #name)
+#define GL_PROC_FALLBACK(type, name, fallback) type name = proc<type>("gl" #name, "gl" #fallback)
     GL_PROC(PFNGLCREATESHADERPROC, CreateShader);
     GL_PROC(PFNGLSHADERSOURCEPROC, ShaderSource);
     GL_PROC(PFNGLCOMPILESHADERPROC, CompileShader);
@@ -102,16 +108,17 @@ struct SceneEffectsRenderer::Impl {
     GL_PROC(PFNGLUNIFORM2FPROC, Uniform2f);
     GL_PROC(PFNGLUNIFORM3FPROC, Uniform3f);
     GL_PROC(PFNGLACTIVETEXTUREPROC, ActiveTexture);
-    GL_PROC(PFNGLGENFRAMEBUFFERSEXTPROC, GenFramebuffersEXT);
-    GL_PROC(PFNGLDELETEFRAMEBUFFERSEXTPROC, DeleteFramebuffersEXT);
-    GL_PROC(PFNGLBINDFRAMEBUFFEREXTPROC, BindFramebufferEXT);
-    GL_PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, CheckFramebufferStatusEXT);
-    GL_PROC(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC, FramebufferTexture2DEXT);
-    GL_PROC(PFNGLGENRENDERBUFFERSEXTPROC, GenRenderbuffersEXT);
-    GL_PROC(PFNGLDELETERENDERBUFFERSEXTPROC, DeleteRenderbuffersEXT);
-    GL_PROC(PFNGLBINDRENDERBUFFEREXTPROC, BindRenderbufferEXT);
-    GL_PROC(PFNGLRENDERBUFFERSTORAGEEXTPROC, RenderbufferStorageEXT);
-    GL_PROC(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC, FramebufferRenderbufferEXT);
+    GL_PROC_FALLBACK(PFNGLGENFRAMEBUFFERSEXTPROC, GenFramebuffersEXT, GenFramebuffers);
+    GL_PROC_FALLBACK(PFNGLDELETEFRAMEBUFFERSEXTPROC, DeleteFramebuffersEXT, DeleteFramebuffers);
+    GL_PROC_FALLBACK(PFNGLBINDFRAMEBUFFEREXTPROC, BindFramebufferEXT, BindFramebuffer);
+    GL_PROC_FALLBACK(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, CheckFramebufferStatusEXT, CheckFramebufferStatus);
+    GL_PROC_FALLBACK(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC, FramebufferTexture2DEXT, FramebufferTexture2D);
+    GL_PROC_FALLBACK(PFNGLGENRENDERBUFFERSEXTPROC, GenRenderbuffersEXT, GenRenderbuffers);
+    GL_PROC_FALLBACK(PFNGLDELETERENDERBUFFERSEXTPROC, DeleteRenderbuffersEXT, DeleteRenderbuffers);
+    GL_PROC_FALLBACK(PFNGLBINDRENDERBUFFERSEXTPROC, BindRenderbufferEXT, BindRenderbuffer);
+    GL_PROC_FALLBACK(PFNGLRENDERBUFFERSTORAGEEXTPROC, RenderbufferStorageEXT, RenderbufferStorage);
+    GL_PROC_FALLBACK(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC, FramebufferRenderbufferEXT, FramebufferRenderbuffer);
+#undef GL_PROC_FALLBACK
 #undef GL_PROC
     struct Program {
         GLuint id{};
